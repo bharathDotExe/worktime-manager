@@ -246,16 +246,21 @@ function Landing() {
             transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="relative"
           >
-            <motion.img
-              src={appDashboard}
-              alt="ELMS manager dashboard showing leave requests with approved and pending statuses"
-              width={1536}
-              height={1024}
-              loading="lazy"
+            <motion.div
               animate={reduce ? {} : { y: [0, -14, 0] }}
               transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-              className="w-full rounded-2xl shadow-[0_40px_80px_-40px_rgba(15,23,42,0.55)]"
-            />
+              className="overflow-hidden rounded-2xl border border-border bg-card p-1.5 shadow-[0_40px_80px_-40px_rgba(15,23,42,0.55)]"
+            >
+              <img
+                src={appDashboard}
+                alt="ELMS manager dashboard showing leave requests with approved and pending statuses"
+                width={1536}
+                height={1024}
+                loading="lazy"
+                className="w-full rounded-xl"
+              />
+            </motion.div>
+
           </motion.div>
         </div>
       </section>
