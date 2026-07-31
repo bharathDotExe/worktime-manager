@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import heroOffice from "../assets/hero-office.jpg";
+import appDashboard from "../assets/app-dashboard.png";
 
 const FEATURES = [
   {
