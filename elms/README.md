@@ -189,3 +189,46 @@ reviewing sets it back to `false`, the client acks it to `true`. The
 rows are impossible even if application code regresses.
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for a full request lifecycle trace.
+
+---
+
+## Extended schema (v2) — `server/migrations/002_extended_schema.sql`
+
+The core two tables run the apply/approve flow. This additive, idempotent
+migration is what makes it look like a system a real HR team would run:
+
+| Object | Why it exists |
+|---|---|
+| `departments`, `users.full_name/is_active/joined_on` | Real org data; deactivate instead of deleting users |
+| `leave_types` | Annual / sick / casual / unpaid, each with entitlement + "document required" |
+| `leave_balances` | Per employee, per type, per year ledger (`entitled_days`, `used_days`) |
+| `holidays` + `working_days(start, end)` | Weekends and company holidays don't burn balance |
+| `leave_no_overlap` EXCLUDE constraint | The database refuses two overlapping pending/approved requests |
+| `audit_logs` | Append-only: who did what, when, from which IP |
+| `sessions` | Hashed refresh tokens → short access tokens and real server-side logout |
+| `set_updated_at()` trigger | `updated_at` is no longer trusted to application code |
+| `leave_requests_expanded` view | One read for the manager queue: employee, department, type, working days |
+| `uniq_users_username_ci` | `Alice` and `alice` can never be two accounts |
+
+Apply it after `npm run schema`:
+
+```bash
+psql "$DATABASE_URL" -f migrations/002_extended_schema.sql
+```
+
+### Architecture improvements worth doing next (in priority order)
+
+1. **Access + refresh tokens.** 15-minute access token, refresh token hashed
+   into `sessions`; logout revokes the row. Removes the "token valid for 2h
+   after logout" gap.
+2. **Balance enforcement in a transaction.** On approval: `BEGIN` → lock the
+   balance row `FOR UPDATE` → check `entitled - used >= working_days` → update
+   both rows → `COMMIT`. Prevents double-spend under concurrent approvals.
+3. **Write an audit row inside the same transaction** as every state change, so
+   history can never disagree with data.
+4. **Structured logging + request IDs** (pino) and a `/healthz` endpoint.
+5. **Object storage for documents** (S3/Supabase Storage + short-lived signed
+   URLs) so the API can scale past one instance — swap `upload.js` only.
+6. **Background job** for year-end balance rollover and carry-forward caps.
+7. **CI**: GitHub Actions running `npm test` against a throwaway Postgres
+   service container; that plus this README is what reviewers actually look at.
