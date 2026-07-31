@@ -61,7 +61,7 @@ export default function Landing() {
             alt="Bright modern office workspace"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/90 to-white" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/55 via-white/45 to-white" />
           <div className="pointer-events-none absolute inset-0">
             <div className="animate-blob absolute -left-24 top-[-6rem] h-72 w-72 rounded-full bg-accent-100 blur-3xl" />
             <div className="animate-blob-slow absolute right-[-6rem] top-24 h-80 w-80 rounded-full bg-sky-100 blur-3xl" />
