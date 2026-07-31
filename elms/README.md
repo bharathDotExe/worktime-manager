@@ -50,6 +50,11 @@ model (parameterized SQL) → JSON response`.
 
 ## Setup
 
+> Using your own Supabase project? Follow **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)**
+> for the connection string, env values, migration and troubleshooting.
+
+
+
 ```bash
 git clone <repo> && cd elms
 
