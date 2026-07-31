@@ -8,6 +8,7 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "schema": "node scripts/apply-schema.js",
+    "db:check": "node scripts/check-db.js",
     "seed": "node seed.js",
     "test": "cross-env NODE_ENV=test jest --runInBand --forceExit"
   },
