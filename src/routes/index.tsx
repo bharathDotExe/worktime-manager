@@ -152,11 +152,13 @@ function Landing() {
             className="h-[115%] w-full object-cover"
           />
         </motion.div>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/92 via-background/85 to-background" />
+        {/* Lighter wash so the photo stays visible behind the copy */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/55 via-background/45 to-background" />
         <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="animate-blob absolute -left-32 top-10 h-96 w-96 rounded-full bg-brand-soft/70 blur-3xl" />
-          <div className="animate-blob-slow absolute -right-32 top-40 h-[26rem] w-[26rem] rounded-full bg-brand-glow/20 blur-3xl" />
+          <div className="animate-blob absolute -left-32 top-10 h-96 w-96 rounded-full bg-brand-soft/40 blur-3xl" />
+          <div className="animate-blob-slow absolute -right-32 top-40 h-[26rem] w-[26rem] rounded-full bg-brand-glow/10 blur-3xl" />
         </div>
+
 
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-24 pt-36 lg:grid-cols-[1.05fr_1fr]">
           <div className="text-center lg:text-left">
