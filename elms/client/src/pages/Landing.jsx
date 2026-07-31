@@ -108,6 +108,13 @@ export default function Landing() {
               </div>
             ))}
           </dl>
+
+          <img
+            src={appDashboard}
+            alt="ELMS dashboard showing leave requests, statuses and balances"
+            loading="lazy"
+            className="animate-rise animate-delay-4 animate-float mx-auto mt-16 w-full max-w-4xl rounded-2xl shadow-2xl"
+          />
         </div>
       </section>
 
