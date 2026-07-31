@@ -64,8 +64,11 @@ cp .env.example .env      # fill DATABASE_URL, JWT_SECRET, MANAGER_SEED_PASSWORD
 npm install
 
 # 2. Schema + seed
+# 2. Schema + seed
+npm run db:check          # verifies DATABASE_URL reaches your Postgres
 npm run schema            # applies schema.sql
 npm run seed              # creates the single manager (+ optional demo employee)
+
 
 # 3. Run the API
 npm run dev               # http://localhost:4000
