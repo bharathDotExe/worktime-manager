@@ -215,6 +215,10 @@ function Landing() {
             </motion.div>
 
             <motion.dl {...rise(0.32)} className="mt-14 grid max-w-lg grid-cols-2 gap-4 sm:grid-cols-4">
+            <motion.dl
+              {...rise(0.32)}
+              className="mt-14 grid max-w-lg grid-cols-2 items-stretch gap-3 sm:grid-cols-4 sm:gap-4"
+            >
               {[
                 ["2h", "Token life"],
                 ["12", "bcrypt rounds"],
@@ -223,16 +227,17 @@ function Landing() {
               ].map(([n, l]) => (
                 <div
                   key={l}
-                  className="hover-lift rounded-xl border border-border bg-card/70 p-4 backdrop-blur"
+                  className="hover-lift flex h-full min-h-[92px] flex-col justify-center rounded-xl border border-border bg-card/85 p-4 shadow-sm backdrop-blur-md"
                 >
                   <dt className="text-2xl font-bold">{n}</dt>
-                  <dd className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+                  <dd className="mt-1 whitespace-nowrap text-[11px] uppercase tracking-wide text-muted-foreground">
                     {l}
                   </dd>
                 </div>
               ))}
             </motion.dl>
           </div>
+
 
           {/* Floating product shot */}
           <motion.div
