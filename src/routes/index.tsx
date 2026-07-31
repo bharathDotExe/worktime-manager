@@ -214,7 +214,7 @@ function Landing() {
               </a>
             </motion.div>
 
-            <motion.dl {...rise(0.32)} className="mt-14 grid max-w-lg grid-cols-2 gap-4 sm:grid-cols-4">
+            
             <motion.dl
               {...rise(0.32)}
               className="mt-14 grid max-w-lg grid-cols-2 items-stretch gap-3 sm:grid-cols-4 sm:gap-4"
