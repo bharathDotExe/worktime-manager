@@ -20,7 +20,7 @@ export default function Employees() {
 
   return (
     <Layout links={MANAGER_LINKS}>
-      <h1 className="text-xl font-bold sm:text-2xl">Employees</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Employees</h1>
       <p className="mt-1 text-sm text-slate-500">
         {loading ? "Loading…" : `${employees.length} account${employees.length === 1 ? "" : "s"}`}
       </p>

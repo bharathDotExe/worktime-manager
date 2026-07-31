@@ -33,7 +33,7 @@ export default function LeaveHistory() {
 
   return (
     <Layout links={EMPLOYEE_LINKS}>
-      <h1 className="text-xl font-bold sm:text-2xl">Leave history</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Leave history</h1>
       <p className="mt-1 text-sm text-slate-500">Every request you have filed, newest first.</p>
 
       {error && (
