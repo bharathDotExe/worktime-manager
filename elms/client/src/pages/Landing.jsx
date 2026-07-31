@@ -55,20 +55,21 @@ export default function Landing() {
 
       {/* Hero */}
       <section className="relative isolate overflow-hidden">
-        <img
-          src={heroOffice}
-          alt="Bright modern office workspace"
-          className="absolute inset-0 -z-20 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white/92 via-white/88 to-white" />
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="animate-blob absolute -left-24 top-[-6rem] h-72 w-72 rounded-full bg-accent-100 blur-3xl" />
-          <div className="animate-blob-slow absolute right-[-6rem] top-24 h-80 w-80 rounded-full bg-sky-100 blur-3xl" />
+        <div className="absolute inset-0 z-0">
+          <img
+            src={heroOffice}
+            alt="Bright modern office workspace"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/90 to-white" />
+          <div className="pointer-events-none absolute inset-0">
+            <div className="animate-blob absolute -left-24 top-[-6rem] h-72 w-72 rounded-full bg-accent-100 blur-3xl" />
+            <div className="animate-blob-slow absolute right-[-6rem] top-24 h-80 w-80 rounded-full bg-sky-100 blur-3xl" />
+          </div>
         </div>
 
+        <div className="relative z-10 mx-auto max-w-6xl px-4 pb-20 pt-24 text-center">
 
-
-        <div className="mx-auto max-w-6xl px-4 pb-20 pt-24 text-center">
           <span className="animate-rise inline-flex items-center gap-2 rounded-full border border-accent-100 bg-accent-50 px-3 py-1 text-xs font-medium text-accent-700">
             <span className="h-1.5 w-1.5 animate-ping rounded-full bg-accent-500" />
             Role-based · JWT secured · Audit-ready
