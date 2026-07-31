@@ -152,11 +152,13 @@ function Landing() {
             className="h-[115%] w-full object-cover"
           />
         </motion.div>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/92 via-background/85 to-background" />
+        {/* Lighter wash so the photo stays visible behind the copy */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/55 via-background/45 to-background" />
         <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="animate-blob absolute -left-32 top-10 h-96 w-96 rounded-full bg-brand-soft/70 blur-3xl" />
-          <div className="animate-blob-slow absolute -right-32 top-40 h-[26rem] w-[26rem] rounded-full bg-brand-glow/20 blur-3xl" />
+          <div className="animate-blob absolute -left-32 top-10 h-96 w-96 rounded-full bg-brand-soft/40 blur-3xl" />
+          <div className="animate-blob-slow absolute -right-32 top-40 h-[26rem] w-[26rem] rounded-full bg-brand-glow/10 blur-3xl" />
         </div>
+
 
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-24 pt-36 lg:grid-cols-[1.05fr_1fr]">
           <div className="text-center lg:text-left">
@@ -212,7 +214,11 @@ function Landing() {
               </a>
             </motion.div>
 
-            <motion.dl {...rise(0.32)} className="mt-14 grid max-w-lg grid-cols-2 gap-4 sm:grid-cols-4">
+            
+            <motion.dl
+              {...rise(0.32)}
+              className="mt-14 grid max-w-lg grid-cols-2 items-stretch gap-3 sm:grid-cols-4 sm:gap-4"
+            >
               {[
                 ["2h", "Token life"],
                 ["12", "bcrypt rounds"],
@@ -221,16 +227,17 @@ function Landing() {
               ].map(([n, l]) => (
                 <div
                   key={l}
-                  className="hover-lift rounded-xl border border-border bg-card/70 p-4 backdrop-blur"
+                  className="hover-lift flex h-full min-h-[92px] flex-col justify-center rounded-xl border border-border bg-card/85 p-4 shadow-sm backdrop-blur-md"
                 >
                   <dt className="text-2xl font-bold">{n}</dt>
-                  <dd className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+                  <dd className="mt-1 whitespace-nowrap text-[11px] uppercase tracking-wide text-muted-foreground">
                     {l}
                   </dd>
                 </div>
               ))}
             </motion.dl>
           </div>
+
 
           {/* Floating product shot */}
           <motion.div
@@ -239,16 +246,21 @@ function Landing() {
             transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="relative"
           >
-            <motion.img
-              src={appDashboard}
-              alt="ELMS manager dashboard showing leave requests with approved and pending statuses"
-              width={1536}
-              height={1024}
-              loading="lazy"
+            <motion.div
               animate={reduce ? {} : { y: [0, -14, 0] }}
               transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-              className="w-full rounded-2xl shadow-[0_40px_80px_-40px_rgba(15,23,42,0.55)]"
-            />
+              className="overflow-hidden rounded-2xl border border-border bg-card p-1.5 shadow-[0_40px_80px_-40px_rgba(15,23,42,0.55)]"
+            >
+              <img
+                src={appDashboard}
+                alt="ELMS manager dashboard showing leave requests with approved and pending statuses"
+                width={1536}
+                height={1024}
+                loading="lazy"
+                className="w-full rounded-xl"
+              />
+            </motion.div>
+
           </motion.div>
         </div>
       </section>
