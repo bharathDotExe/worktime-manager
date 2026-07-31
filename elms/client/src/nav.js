@@ -1,10 +1,10 @@
 export const EMPLOYEE_LINKS = [
-  { to: "/dashboard", label: "Dashboard" },
-  { to: "/apply", label: "Apply leave" },
-  { to: "/history", label: "History" },
+  { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
+  { to: "/apply", label: "Apply leave", icon: "apply" },
+  { to: "/history", label: "History", icon: "history" },
 ];
 
 export const MANAGER_LINKS = [
-  { to: "/manager/requests", label: "Leave requests" },
-  { to: "/manager/employees", label: "Employees" },
+  { to: "/manager/requests", label: "Leave requests", icon: "requests" },
+  { to: "/manager/employees", label: "Employees", icon: "people" },
 ];

@@ -115,16 +115,46 @@ export default function LeaveRequests() {
 
   const empty = !loading && leaves.length === 0;
 
+  const counts = {
+    total: leaves.length,
+    approved: leaves.filter((l) => l.status === "approved").length,
+    pending: leaves.filter((l) => l.status === "pending").length,
+    rejected: leaves.filter((l) => l.status === "rejected").length,
+  };
+
+  const TILES = [
+    { key: "total", label: "In this view", tone: "bg-accent-50 text-accent-600" },
+    { key: "approved", label: "Approved", tone: "bg-emerald-50 text-emerald-600" },
+    { key: "pending", label: "Pending", tone: "bg-amber-50 text-amber-600" },
+    { key: "rejected", label: "Rejected", tone: "bg-rose-50 text-rose-600" },
+  ];
+
   return (
     <Layout links={MANAGER_LINKS}>
       <div className="min-w-0">
-        <h1 className="text-xl font-bold sm:text-2xl">Leave requests</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Leave requests</h1>
         <p className="mt-1 text-sm text-slate-500">
-          {loading ? "Loading…" : `${leaves.length} ${filter === "all" ? "total" : filter}`}
+          Review, approve or reject the team&apos;s leave applications.
         </p>
       </div>
 
-      <div className="mt-4 -mx-4 flex gap-1 overflow-x-auto px-4 pb-1">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        {TILES.map((t) => (
+          <div key={t.key} className="card hover-lift flex items-center gap-4 p-4 sm:p-5">
+            <span
+              className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl text-sm font-bold ${t.tone}`}
+            >
+              {loading ? "…" : counts[t.key]}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-slate-700">{t.label}</p>
+              <p className="text-xs text-slate-400">Current filter: {filter}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 -mx-4 flex gap-1 overflow-x-auto px-4 pb-1">
         {FILTERS.map((f) => (
           <button
             key={f}
