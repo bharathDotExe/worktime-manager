@@ -176,7 +176,7 @@ function Home() {
       <main id="top">
         <section className="relative isolate overflow-hidden border-b border-elms-line">
           {/* Static photographic backdrop, duotone-graded into the palette */}
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
             <div
               className="hidden h-full w-full bg-cover bg-center sm:block"
               style={{
@@ -205,7 +205,7 @@ function Home() {
             <div className="absolute inset-0 bg-elms-bg sm:hidden" />
           </div>
 
-          <div className="mx-auto w-full max-w-[1120px] px-6 pb-16 pt-16 sm:pt-24">
+          <div className="relative z-10 mx-auto w-full max-w-[1120px] px-6 pb-16 pt-16 sm:pt-24">
           <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-elms-muted">
             Role-based access · JWT auth · Audit-logged
           </p>
