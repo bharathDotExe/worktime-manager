@@ -348,7 +348,7 @@ function Landing() {
                           ? { duration: 0.4 }
                           : { duration: 0.2, delay: 0.25, ease: [0.3, 1.6, 0.5, 1] }
                       }
-                      className="pointer-events-none absolute -bottom-1 right-2 w-28"
+                      className="pointer-events-none absolute bottom-3 right-3 w-28"
                     >
                       <StampMark />
                     </motion.div>

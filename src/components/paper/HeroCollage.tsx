@@ -154,7 +154,7 @@ export function HeroCollage({ scrollDrift }: { scrollDrift: MotionValue<number> 
           x: useTransform(mx, (v) => v * 1.3),
           y: useTransform([my, scrollDrift] as const, ([m, d]: number[]) => (m ?? 0) * 1.3 + (d ?? 0) * 4),
         }}
-        className="absolute right-4 top-2 w-[45%]"
+        className="absolute -top-2 right-0 w-[44%]"
       >
         <motion.div
           initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.9, rotate: 24 }}
