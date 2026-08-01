@@ -143,26 +143,46 @@
   }
 }
 
-/* Brand tokens for the ELMS landing page */
+/* ---- Paper Collage Desk tokens (ELMS landing) ---- */
 :root {
-  --brand: oklch(0.55 0.19 258);
-  --brand-foreground: oklch(0.99 0.005 258);
-  --brand-soft: oklch(0.95 0.03 258);
-  --brand-glow: oklch(0.68 0.15 232);
-  --gradient-brand: linear-gradient(120deg, var(--brand), var(--brand-glow));
-  --shadow-elegant: 0 18px 40px -20px color-mix(in oklab, var(--brand) 45%, transparent);
-}
-.dark {
-  --brand: oklch(0.66 0.16 258);
-  --brand-foreground: oklch(0.16 0.03 258);
-  --brand-soft: oklch(0.28 0.05 258);
-  --brand-glow: oklch(0.72 0.13 232);
+  --paper: oklch(0.958 0.014 89);      /* #F6F3EC */
+  --ink: oklch(0.259 0.062 275);       /* #1B1F3B */
+  --stamp-red: oklch(0.489 0.146 30);  /* #B23A2E */
+  --approve: oklch(0.455 0.078 156);   /* #2F6B4F */
+  --kraft: oklch(0.849 0.031 92);      /* #D8CFB8 */
+  --pencil: oklch(0.582 0.019 88);     /* #8A8375 */
+  --shadow-paper: 0 18px 34px -22px color-mix(in oklab, var(--ink) 55%, transparent);
+  --shadow-lift: 0 26px 48px -26px color-mix(in oklab, var(--ink) 50%, transparent);
 }
 @theme inline {
-  --color-brand: var(--brand);
-  --color-brand-foreground: var(--brand-foreground);
-  --color-brand-soft: var(--brand-soft);
-  --color-brand-glow: var(--brand-glow);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-stamp: var(--stamp-red);
+  --color-approve: var(--approve);
+  --color-kraft: var(--kraft);
+  --color-pencil: var(--pencil);
+  --font-display: "Archivo Black", "Public Sans", sans-serif;
+  --font-sans: "Public Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@utility paper-grain {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
+  }
+}
+
+@utility focus-paper {
+  &:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
 }
 
 @keyframes elms-rise {
