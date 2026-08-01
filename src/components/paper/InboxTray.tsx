@@ -21,7 +21,7 @@ export function InboxTray() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.5, delay: i * 0.09, ease: [0.16, 1, 0.3, 1] }}
-              style={{ rotate: [-1.5, 1, -0.5][i] }}
+              style={{ rotate: [-1.5, 1, -0.5][i] ?? 0 }}
               className={`paper-grain flex items-center justify-between rounded-[3px] border bg-white px-4 py-3 shadow-[var(--shadow-paper)] ${
                 pending ? "border-stamp/60 ring-2 ring-stamp/20" : "border-pencil/30"
               }`}

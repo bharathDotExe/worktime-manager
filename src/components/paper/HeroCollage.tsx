@@ -20,7 +20,7 @@ function Layer({
   children: React.ReactNode;
 }) {
   const x = useTransform(mx, (v) => v * depth);
-  const y = useTransform([my, drift] as const, ([m, d]: number[]) => m * depth + d * depth * 3);
+  const y = useTransform([my, drift] as const, ([m, d]: number[]) => (m ?? 0) * depth + (d ?? 0) * depth * 3);
   return (
     <motion.div style={{ x, y, rotate }} className={`absolute ${className ?? ""}`}>
       {children}
@@ -152,7 +152,7 @@ export function HeroCollage({ scrollDrift }: { scrollDrift: MotionValue<number> 
       <motion.div
         style={{
           x: useTransform(mx, (v) => v * 1.3),
-          y: useTransform([my, scrollDrift] as const, ([m, d]: number[]) => m * 1.3 + d * 4),
+          y: useTransform([my, scrollDrift] as const, ([m, d]: number[]) => (m ?? 0) * 1.3 + (d ?? 0) * 4),
         }}
         className="absolute right-4 top-2 w-[45%]"
       >
