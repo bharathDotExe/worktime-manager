@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import RequestTrace from "@/components/trace/RequestTrace";
+import officeHero from "@/assets/office-hero.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
