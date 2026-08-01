@@ -1,181 +1,385 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
-import heroOffice from "../assets/hero-office.jpg";
-import appDashboard from "../assets/app-dashboard.png";
+import officeHero from "../assets/office-hero.jpg";
+import RequestTrace from "../components/trace/RequestTrace.jsx";
+import AuthModal from "../components/AuthModal.jsx";
 
-const FEATURES = [
-  {
-    title: "Apply in seconds",
-    body: "Pick dates, state a reason, attach a medical note or approval mail. Validation runs on the server, not just the form.",
-  },
-  {
-    title: "One-tap review",
-    body: "Managers see every pending request in one queue and approve or reject with mandatory written remarks.",
-  },
-  {
-    title: "Gated documents",
-    body: "Uploads are MIME-checked, size-capped and renamed. Files stream only to the owner or the manager — never statically served.",
-  },
-  {
-    title: "Instant notifications",
-    body: "The moment a decision lands, the employee is told once and exactly once — tracked in the database, not in local state.",
-  },
-  {
-    title: "Auditable by design",
-    body: "Every decision records who made it, when, and why. Append-only audit rows keep the history honest.",
-  },
-  {
-    title: "Secure by default",
-    body: "bcrypt (cost 12), short-lived JWTs, parameterized SQL, helmet, per-IP rate limits and role checks on every route.",
-  },
+const NAV = [
+  ["Product", "#product"],
+  ["Security", "#security"],
+  ["Workflow", "#workflow"],
+  ["Docs", "#docs"],
+];
+
+const STACK = [
+  "React",
+  "Vite",
+  "Express",
+  "Node.js",
+  "PostgreSQL",
+  "JWT",
+  "Bcrypt",
+  "Multer",
+  "Zod",
+  "Helmet",
 ];
 
 const STEPS = [
-  ["01", "Employee applies", "Dates, reason and a supporting document."],
-  ["02", "Manager reviews", "Approve or reject — remarks are compulsory."],
-  ["03", "Employee is notified", "Status and remarks arrive in the dashboard."],
+  {
+    route: "POST /api/leaves",
+    title: "Employee applies.",
+    body: "Reason, start date, end date, and an optional file are validated on the server before anything is saved — never trusted from the form alone.",
+  },
+  {
+    route: "PATCH /api/leaves/:id",
+    title: "Manager reviews.",
+    body: "The manager account is fixed and seeded once — there is no path in the product that creates a second one. Approvals and rejections require written remarks.",
+  },
+  {
+    route: "GET /api/leaves/notifications",
+    title: "Employee is notified.",
+    body: "The next time the employee's session checks in, they see the new status exactly once, tracked server-side — never re-shown on refresh.",
+  },
 ];
+
+const BUILT_WITH = [
+  ["Frontend", "React + Vite + Tailwind", "Fast to build, easy to keep consistent."],
+  ["Backend", "Node.js + Express", "A small, explicit API surface, easy to reason about."],
+  [
+    "Database",
+    "PostgreSQL",
+    "Relational integrity for a workflow that can't afford half-saved state.",
+  ],
+  [
+    "Security",
+    "JWT, bcrypt, Helmet, Zod",
+    "Authentication, password hashing, safe headers, and input validation, each doing one job.",
+  ],
+];
+
+const CHECKS = [
+  "Passwords hashed with bcrypt, cost factor 12 — never stored in plain text",
+  "Every manager-only route checks both identity and role, on the server, every time",
+  "Every employee query is scoped with WHERE employee_id = $1 — never filtered client-side",
+  "All file uploads are type-checked, size-capped, and renamed before they touch disk",
+  "Uploaded files are served only to their owner or the manager — never from a public folder",
+  "Every SQL statement is parameterized — no string concatenation, ever",
+];
+
+function Check() {
+  return (
+    <svg viewBox="0 0 16 16" className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true">
+      <path
+        d="M3 8.5l3.2 3.2L13 5"
+        fill="none"
+        stroke="var(--elms-primary)"
+        strokeWidth="1.6"
+        strokeLinecap="square"
+      />
+    </svg>
+  );
+}
+
+function Section({ id, children, className = "" }) {
+  return (
+    <section id={id} className={`border-t border-elms-line ${className}`}>
+      <div className="mx-auto w-full max-w-[1120px] px-6 py-16 sm:py-20">{children}</div>
+    </section>
+  );
+}
+
+const btnBase =
+  "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-ink";
+const btnPrimary = `${btnBase} bg-elms-primary text-white hover:opacity-90`;
+const btnGhost = `${btnBase} border border-elms-line bg-elms-surface text-elms-ink hover:bg-elms-bg`;
 
 export default function Landing() {
   const { user } = useAuth();
   const home = user ? (user.role === "manager" ? "/manager/requests" : "/dashboard") : "/login";
+  const [authModal, setAuthModal] = useState(null);
 
   return (
-    <div className="min-h-screen overflow-hidden bg-white">
+    <div className="min-h-screen bg-elms-bg font-sans text-elms-ink antialiased">
+      {authModal && <AuthModal initialTab={authModal} onClose={() => setAuthModal(null)} />}
       {/* Nav */}
-      <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <span className="text-lg font-bold tracking-tight text-accent-600">ELMS</span>
-          <nav className="flex items-center gap-2">
-            <Link to="/login" className="btn-ghost">Sign in</Link>
-            <Link to="/register" className="btn-primary">Get started</Link>
+      <header className="sticky top-0 z-30 border-b border-elms-line bg-elms-bg/95 backdrop-blur-[2px]">
+        <div className="mx-auto flex w-full max-w-[1120px] items-center justify-between px-6 py-3">
+          <a href="#top" className="flex items-center gap-2 focus-ink">
+            <svg viewBox="0 0 20 20" className="h-5 w-5" aria-hidden="true">
+              <rect
+                x="2.5"
+                y="7.5"
+                width="15"
+                height="10"
+                rx="1.5"
+                fill="none"
+                stroke="var(--elms-primary)"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M6.5 7.5V5.5a3.5 3.5 0 017 0v2"
+                fill="none"
+                stroke="var(--elms-primary)"
+                strokeWidth="1.5"
+              />
+            </svg>
+            <span className="font-mono text-sm font-semibold tracking-tight">ELMS</span>
+          </a>
+          <nav className="hidden items-center gap-7 md:flex">
+            {NAV.map(([label, href]) => (
+              <a
+                key={label}
+                href={href}
+                className="text-sm text-elms-muted transition-colors hover:text-elms-ink focus-ink"
+              >
+                {label}
+              </a>
+            ))}
           </nav>
+          <div className="flex items-center gap-2">
+            {user ? (
+              <Link to={home} className={`${btnGhost} hidden sm:inline-flex`}>
+                Dashboard
+              </Link>
+            ) : (
+              <button onClick={() => setAuthModal("login")} className={`${btnGhost} hidden sm:inline-flex`}>
+                Sign in
+              </button>
+            )}
+            {user ? (
+              <Link to={home} className={btnPrimary}>
+                Get started
+              </Link>
+            ) : (
+              <button onClick={() => setAuthModal("register")} className={btnPrimary}>
+                Get started
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img
-            src={heroOffice}
-            alt="Bright modern office workspace"
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/55 via-white/45 to-white" />
-          <div className="pointer-events-none absolute inset-0">
-            <div className="animate-blob absolute -left-24 top-[-6rem] h-72 w-72 rounded-full bg-accent-100 blur-3xl" />
-            <div className="animate-blob-slow absolute right-[-6rem] top-24 h-80 w-80 rounded-full bg-sky-100 blur-3xl" />
+      <main id="top">
+        <section className="relative isolate overflow-hidden border-b border-elms-line">
+          {/* Static photographic backdrop, duotone-graded into the palette */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
+            <div
+              className="hidden h-full w-full bg-cover bg-center sm:block"
+              style={{
+                backgroundImage: `url(${officeHero})`,
+                filter: "grayscale(0.78) contrast(1.05) brightness(1.02)",
+              }}
+            />
+            <div
+              className="hidden h-full w-full sm:block"
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundColor: "var(--elms-ink)",
+                mixBlendMode: "color",
+                opacity: 0.25,
+              }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(90deg, color-mix(in oklab, var(--elms-bg) 92%, transparent) 0%, color-mix(in oklab, var(--elms-bg) 86%, transparent) 45%, color-mix(in oklab, var(--elms-bg) 40%, transparent) 100%)",
+              }}
+            />
+            {/* Small screens: solid fallback for guaranteed contrast */}
+            <div className="absolute inset-0 bg-elms-bg sm:hidden" />
           </div>
-        </div>
 
-        <div className="relative z-10 mx-auto max-w-6xl px-4 pb-20 pt-24 text-center">
-
-          <span className="animate-rise inline-flex items-center gap-2 rounded-full border border-accent-100 bg-accent-50 px-3 py-1 text-xs font-medium text-accent-700">
-            <span className="h-1.5 w-1.5 animate-ping rounded-full bg-accent-500" />
-            Role-based · JWT secured · Audit-ready
-          </span>
-
-          <h1 className="animate-rise animate-delay-1 mx-auto mt-6 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-6xl">
-            Leave requests that move{" "}
-            <span className="bg-gradient-to-r from-accent-500 to-sky-500 bg-clip-text text-transparent">
-              as fast as your team
-            </span>
-          </h1>
-
-          <p className="animate-rise animate-delay-2 mx-auto mt-5 max-w-2xl text-lg text-slate-600">
-            An Employee Leave Management System where every rule — ownership, roles, uploads,
-            balances — is enforced on the backend. The UI is just the convenient way in.
+          <div className="relative z-10 mx-auto w-full max-w-[1120px] px-6 pb-16 pt-16 sm:pt-24">
+          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-elms-muted">
+            Role-based access · JWT auth · Audit-logged
           </p>
-
-          <div className="animate-rise animate-delay-3 mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link to={home} className="btn-primary hover-lift px-6 py-3 text-base">
-              {user ? "Go to dashboard" : "Sign in"}
-            </Link>
-            <Link to="/register" className="btn-ghost hover-lift px-6 py-3 text-base">
-              Create employee account
-            </Link>
+          <h1 className="mt-5 max-w-3xl font-display text-4xl font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[56px]">
+            Leave requests, enforced end to end
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-elms-muted">
+            ELMS is an employee leave management system where every rule — who can approve, who can
+            see a file, who counts as a manager — is enforced by the backend, not the interface.
+            Here's exactly how a request moves through it.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            {user ? (
+              <Link to={home} className={btnPrimary}>
+                Get started
+              </Link>
+            ) : (
+              <button onClick={() => setAuthModal("register")} className={btnPrimary}>
+                Get started
+              </button>
+            )}
+            <a href="#security" className={btnGhost}>
+              Read the security model
+            </a>
           </div>
+          </div>
+        </section>
 
-          <dl className="animate-rise animate-delay-4 mx-auto mt-16 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
-            {[
-              ["2h", "Token lifetime"],
-              ["12", "bcrypt rounds"],
-              ["100%", "Parameterized SQL"],
-              ["0", "Client-trusted roles"],
-            ].map(([n, l]) => (
-              <div key={l} className="card hover-lift py-5">
-                <dt className="text-2xl font-bold text-slate-900">{n}</dt>
-                <dd className="mt-1 text-xs uppercase tracking-wide text-slate-500">{l}</dd>
-              </div>
-            ))}
-          </dl>
-
-          <img
-            src={appDashboard}
-            alt="ELMS dashboard showing leave requests, statuses and balances"
-            loading="lazy"
-            className="animate-rise animate-delay-4 animate-float mx-auto mt-16 w-full max-w-4xl rounded-2xl border border-slate-200 bg-white shadow-2xl"
-          />
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="border-t border-slate-200 bg-slate-50 py-20">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-center text-3xl font-bold tracking-tight text-slate-900">
-            Everything the flow needs, nothing it doesn&apos;t
-          </h2>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f, i) => (
-              <article
-                key={f.title}
-                className={`card hover-lift animate-rise animate-delay-${(i % 4) + 1}`}
+        {/* Marquee */}
+        <div className="overflow-hidden border-y border-elms-line bg-elms-surface py-3">
+          <div className="marquee-track flex w-max">
+            {[0, 1].map((dup) => (
+              <ul
+                key={dup}
+                className="flex shrink-0 items-center"
+                aria-hidden={dup === 1 || undefined}
               >
-                <h3 className="text-base font-semibold text-slate-900">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">{f.body}</p>
-              </article>
+                {STACK.map((t) => (
+                  <li
+                    key={t}
+                    className="px-6 font-mono text-[11px] uppercase tracking-[0.18em] text-elms-muted/80"
+                  >
+                    {t}
+                  </li>
+                ))}
+              </ul>
             ))}
           </div>
         </div>
-      </section>
 
-      {/* How it works */}
-      <section className="py-20">
-        <div className="mx-auto max-w-5xl px-4">
-          <h2 className="text-center text-3xl font-bold tracking-tight text-slate-900">
-            Three steps, one source of truth
+        {/* What this is */}
+        <Section id="product">
+          <div className="grid gap-10 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+            <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
+              What ELMS actually does
+            </h2>
+            <p className="max-w-2xl text-base leading-relaxed text-elms-muted">
+              Employees apply for leave with a reason, a date range, and a supporting document.
+              Managers see every request in one queue, open the attached file, and approve or reject
+              it with a required comment. Status changes reach the employee once, and only once.
+              That's the whole product — the rest of this page is about how it stays correct and
+              secure while doing it.
+            </p>
+          </div>
+        </Section>
+
+        {/* Workflow */}
+        <Section id="workflow" className="bg-elms-surface">
+          <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
+            Three steps, no shortcuts
           </h2>
-          <ol className="mt-12 grid gap-6 md:grid-cols-3">
-            {STEPS.map(([n, title, body], i) => (
-              <li key={n} className={`card hover-lift animate-rise animate-delay-${i + 1}`}>
-                <span className="text-sm font-bold text-accent-500">{n}</span>
-                <h3 className="mt-2 font-semibold text-slate-900">{title}</h3>
-                <p className="mt-1 text-sm text-slate-600">{body}</p>
+          <div className="mt-10 rounded-lg border border-elms-line bg-elms-bg p-6 sm:p-10">
+            <RequestTrace large />
+          </div>
+          <ol className="mt-10 grid gap-px overflow-hidden rounded-lg border border-elms-line bg-elms-line md:grid-cols-3">
+            {STEPS.map((s, i) => (
+              <li key={s.route} className="bg-elms-surface p-6">
+                <p className="font-mono text-[11px] text-elms-primary">{s.route}</p>
+                <h3 className="mt-3 text-sm font-semibold">
+                  <span className="mr-2 font-mono text-elms-muted">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  {s.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-elms-muted">{s.body}</p>
               </li>
             ))}
           </ol>
-        </div>
-      </section>
+        </Section>
 
-      {/* CTA */}
-      <section className="bg-gradient-to-r from-accent-600 to-sky-600 py-16">
-        <div className="mx-auto max-w-3xl px-4 text-center">
-          <h2 className="text-3xl font-bold text-white">Ready when your team is</h2>
-          <p className="mt-3 text-accent-50">
-            Sign in as a manager to review the queue, or register as an employee and file your
-            first request.
+        {/* Built with */}
+        <Section id="docs">
+          <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
+            Built with
+          </h2>
+          <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-elms-line bg-elms-line sm:grid-cols-2 lg:grid-cols-4">
+            {BUILT_WITH.map(([kind, stack, why]) => (
+              <div key={kind} className="bg-elms-surface p-6">
+                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-elms-muted">
+                  {kind}
+                </p>
+                <h3 className="mt-3 text-sm font-semibold">{stack}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-elms-muted">{why}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {/* Security */}
+        <Section id="security" className="bg-elms-surface">
+          <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
+            Nothing here is optional
+          </h2>
+          <ul className="mt-10 grid gap-x-10 gap-y-4 md:grid-cols-2">
+            {CHECKS.map((c) => (
+              <li key={c} className="flex items-start gap-3">
+                <Check />
+                <span className="font-mono text-[13px] leading-relaxed text-elms-ink">{c}</span>
+              </li>
+            ))}
+          </ul>
+        </Section>
+
+        {/* Two roles */}
+        <Section>
+          <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
+            One system, two clear roles
+          </h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            {[
+              [
+                "Employee",
+                "Apply for leave, attach a document, track status, get notified once. Can only ever see their own requests.",
+              ],
+              [
+                "Manager",
+                "One fixed account, seeded once. Review every request, open attached documents, approve or reject with a comment.",
+              ],
+            ].map(([role, body]) => (
+              <div key={role} className="rounded-lg border border-elms-line bg-elms-surface p-6">
+                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-elms-muted">
+                  Role
+                </p>
+                <h3 className="mt-3 font-display text-lg font-semibold tracking-[-0.01em]">
+                  {role}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-elms-muted">{body}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {/* CTA */}
+        <Section className="bg-elms-surface">
+          <div className="max-w-2xl">
+            <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
+              See the whole flow
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-elms-muted">
+              Walk through a real leave request, from submission to approval, in about two minutes.
+            </p>
+            {user ? (
+              <Link
+                to={home}
+                className="mt-6 inline-flex items-center gap-2 rounded-md border border-elms-primary px-4 py-2 text-sm font-medium text-elms-primary transition-colors hover:bg-elms-primary hover:text-white focus-ink"
+              >
+                Explore the system <span aria-hidden="true">→</span>
+              </Link>
+            ) : (
+              <button
+                onClick={() => setAuthModal("register")}
+                className="mt-6 inline-flex items-center gap-2 rounded-md border border-elms-primary px-4 py-2 text-sm font-medium text-elms-primary transition-colors hover:bg-elms-primary hover:text-white focus-ink"
+              >
+                Explore the system <span aria-hidden="true">→</span>
+              </button>
+            )}
+          </div>
+        </Section>
+      </main>
+
+      <footer className="border-t border-elms-line">
+        <div className="mx-auto w-full max-w-[1120px] px-6 py-8">
+          <p className="font-mono text-[11px] text-elms-muted">
+            ELMS — React · Express · PostgreSQL · JWT
           </p>
-          <Link
-            to="/login"
-            className="btn hover-lift mt-7 bg-white px-6 py-3 text-base font-semibold text-accent-700 hover:bg-accent-50"
-          >
-            Sign in to ELMS
-          </Link>
         </div>
-      </section>
-
-      <footer className="border-t border-slate-200 py-8 text-center text-sm text-slate-500">
-        ELMS — Employee Leave Management System · React · Express · PostgreSQL · JWT
       </footer>
     </div>
   );

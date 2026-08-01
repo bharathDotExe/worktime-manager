@@ -61,3 +61,50 @@
 }
 .animate-float { animation: elms-float 7s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .animate-float { animation: none; } }
+
+/* ---- ELMS engineering-product tokens ---- */
+:root {
+  --elms-bg: #F6F7F9;
+  --elms-surface: #FFFFFF;
+  --elms-ink: #14171F;
+  --elms-ink-muted: #5B6270;
+  --elms-line: #E3E6EB;
+  --elms-primary: #0B6E4F;
+  --elms-pending: #C98A1E;
+  --elms-reject: #B23B34;
+}
+
+@layer utilities {
+  .focus-ink:focus-visible {
+    outline: 2px solid var(--elms-primary);
+    outline-offset: 2px;
+  }
+}
+
+@keyframes elms-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes elms-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes elms-node-in {
+  from { opacity: 0.25; }
+  to { opacity: 1; }
+}
+@keyframes elms-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.elms-reveal { animation: elms-fade-up 180ms ease-out both; }
+.elms-draw { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: elms-draw 900ms linear forwards; }
+.elms-node { opacity: 0.25; animation: elms-node-in 180ms ease-out forwards; }
+.marquee-track { animation: elms-marquee 40s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .elms-reveal, .elms-node, .marquee-track { animation: none; }
+  .elms-node { opacity: 1; }
+  .elms-draw { stroke-dashoffset: 0; animation: none; }
+}
+
