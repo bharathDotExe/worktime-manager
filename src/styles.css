@@ -143,61 +143,61 @@
   }
 }
 
-/* ---- Paper Collage Desk tokens (ELMS landing) ---- */
+/* ---- ELMS engineering-product tokens ---- */
 :root {
-  --paper: oklch(0.958 0.014 89);      /* #F6F3EC */
-  --ink: oklch(0.259 0.062 275);       /* #1B1F3B */
-  --stamp-red: oklch(0.489 0.146 30);  /* #B23A2E */
-  --approve: oklch(0.455 0.078 156);   /* #2F6B4F */
-  --kraft: oklch(0.849 0.031 92);      /* #D8CFB8 */
-  --pencil: oklch(0.582 0.019 88);     /* #8A8375 */
-  --shadow-paper: 0 18px 34px -22px color-mix(in oklab, var(--ink) 55%, transparent);
-  --shadow-lift: 0 26px 48px -26px color-mix(in oklab, var(--ink) 50%, transparent);
+  --elms-bg: oklch(0.972 0.003 264);        /* #F6F7F9 */
+  --elms-surface: oklch(1 0 0);             /* #FFFFFF */
+  --elms-ink: oklch(0.191 0.014 271);       /* #14171F */
+  --elms-ink-muted: oklch(0.472 0.017 268); /* #5B6270 */
+  --elms-line: oklch(0.921 0.005 264);      /* #E3E6EB */
+  --elms-primary: oklch(0.435 0.099 165);   /* #0B6E4F */
+  --elms-pending: oklch(0.680 0.130 74);    /* #C98A1E */
+  --elms-reject: oklch(0.492 0.147 26);     /* #B23B34 */
 }
+
 @theme inline {
-  --color-paper: var(--paper);
-  --color-ink: var(--ink);
-  --color-stamp: var(--stamp-red);
-  --color-approve: var(--approve);
-  --color-kraft: var(--kraft);
-  --color-pencil: var(--pencil);
-  --font-display: "Archivo Black", "Public Sans", sans-serif;
-  --font-sans: "Public Sans", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --color-elms-bg: var(--elms-bg);
+  --color-elms-surface: var(--elms-surface);
+  --color-elms-ink: var(--elms-ink);
+  --color-elms-muted: var(--elms-ink-muted);
+  --color-elms-line: var(--elms-line);
+  --color-elms-primary: var(--elms-primary);
+  --color-elms-pending: var(--elms-pending);
+  --color-elms-reject: var(--elms-reject);
+  --font-display: "Geist", "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
 }
 
-@utility paper-grain {
-  position: relative;
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.5;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
-  }
-}
-
-@utility focus-paper {
+@utility focus-ink {
   &:focus-visible {
-    outline: 2px solid var(--ink);
-    outline-offset: 3px;
+    outline: 2px solid var(--elms-primary);
+    outline-offset: 2px;
   }
 }
 
-@keyframes elms-rise {
-  from { opacity: 0; transform: translateY(20px); }
+@keyframes elms-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+@keyframes elms-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes elms-node-in {
+  from { opacity: 0.25; }
+  to { opacity: 1; }
 }
 @keyframes elms-marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
-.animate-rise { animation: elms-rise 0.75s cubic-bezier(0.16,1,0.3,1) both; }
-.marquee-track { animation: elms-marquee 34s linear infinite; }
-.hover-lift { transition: transform .22s ease, box-shadow .22s ease; }
-.hover-lift:hover { transform: translateY(-4px) rotate(0deg); box-shadow: var(--shadow-lift); }
+.elms-reveal { animation: elms-fade-up 180ms ease-out both; }
+.elms-draw { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: elms-draw 900ms linear forwards; }
+.elms-node { opacity: 0.25; animation: elms-node-in 180ms ease-out forwards; }
+.marquee-track { animation: elms-marquee 40s linear infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-rise, .marquee-track { animation: none; }
-  .hover-lift:hover { transform: none; }
+  .elms-reveal, .elms-node, .marquee-track { animation: none; }
+  .elms-node { opacity: 1; }
+  .elms-draw { stroke-dashoffset: 0; animation: none; }
 }
