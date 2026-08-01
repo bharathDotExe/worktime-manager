@@ -1,386 +1,364 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
-import { Check } from "lucide-react";
-import { HeroCollage, StampMark } from "@/components/paper/HeroCollage";
-import { InboxTray } from "@/components/paper/InboxTray";
+import RequestTrace from "@/components/trace/RequestTrace";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ELMS — Leave Requests That Move as Fast as Your Team" },
+      { title: "ELMS — Leave requests, enforced end to end" },
       {
         name: "description",
         content:
-          "An employee leave management system where ownership, roles, uploads and balances are enforced on the backend. Role-based, JWT-secured, audit-ready.",
+          "ELMS is an employee leave management system where roles, uploads and balances are enforced by the backend. See the full request lifecycle and security model.",
       },
-      { property: "og:title", content: "ELMS — Leave Requests That Move as Fast as Your Team" },
+      { property: "og:title", content: "ELMS — Leave requests, enforced end to end" },
       {
         property: "og:description",
         content:
-          "Apply, review and audit employee leave in one secure workflow. Every rule enforced server-side.",
+          "Role-based access, JWT auth, parameterized SQL and audit logging — the request lifecycle, explained end to end.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Landing,
+  component: Home,
 });
 
-const FEATURES = [
-  {
-    eyebrow: "01 — INPUT",
-    title: "Apply in seconds",
-    body: "Pick dates, state a reason, attach a supporting document. Validation runs on the server, not just in the form.",
-  },
-  {
-    eyebrow: "02 — REVIEW",
-    title: "One-tap review",
-    body: "Managers get a single pending queue and approve or reject with mandatory written remarks.",
-  },
-  {
-    eyebrow: "03 — STORAGE",
-    title: "Gated documents",
-    body: "Uploads are MIME-checked, size-capped, and renamed. Files stream only to the owner or the manager.",
-  },
-  {
-    eyebrow: "04 — ALERTS",
-    title: "Exactly-once alerts",
-    body: "Decisions reach the employee once — tracked in the database, never in fragile local state.",
-  },
-  {
-    eyebrow: "05 — HISTORY",
-    title: "Auditable by design",
-    body: "Append-only audit rows record who decided what, when, and from where.",
-  },
-  {
-    eyebrow: "06 — DEFAULTS",
-    title: "Secure by default",
-    body: "Bcrypt cost 12, short-lived JWTs, parameterized SQL, helmet, rate limits, and role checks on every route.",
-  },
-];
+const NAV = [
+  ["Product", "#product"],
+  ["Security", "#security"],
+  ["Workflow", "#workflow"],
+  ["Docs", "#docs"],
+] as const;
 
-const ROTATIONS = [-2, 1.5, 3, -1, 2.5, -2.5];
+const STATS = ["2h token expiry", "bcrypt cost 12", "100% parameterized SQL", "2 trusted roles"];
 
 const STACK = [
-  "Multer",
-  "Jest",
-  "Helmet",
   "React",
   "Vite",
   "Express",
+  "Node.js",
   "PostgreSQL",
   "JWT",
   "Bcrypt",
+  "Multer",
   "Zod",
+  "Helmet",
 ];
 
 const STEPS = [
-  ["01", "Employee applies", "Dates, reason and a supporting document in one form."],
-  ["02", "Manager reviews", "Approve or reject — remarks are compulsory."],
-  ["03", "Employee is notified", "Status and remarks land in the dashboard instantly."],
+  {
+    route: "POST /api/leaves",
+    title: "Employee applies.",
+    body: "Reason, start date, end date, and an optional file are validated on the server before anything is saved — never trusted from the form alone.",
+  },
+  {
+    route: "PATCH /api/leaves/:id",
+    title: "Manager reviews.",
+    body: "The manager account is fixed and seeded once — there is no path in the product that creates a second one. Approvals and rejections require written remarks.",
+  },
+  {
+    route: "GET /api/leaves/notifications",
+    title: "Employee is notified.",
+    body: "The next time the employee's session checks in, they see the new status exactly once, tracked server-side — never re-shown on refresh.",
+  },
+];
+
+const BUILT_WITH = [
+  ["Frontend", "React + Vite + Tailwind", "Fast to build, easy to keep consistent."],
+  ["Backend", "Node.js + Express", "A small, explicit API surface, easy to reason about."],
+  [
+    "Database",
+    "PostgreSQL",
+    "Relational integrity for a workflow that can't afford half-saved state.",
+  ],
+  [
+    "Security",
+    "JWT, bcrypt, Helmet, Zod",
+    "Authentication, password hashing, safe headers, and input validation, each doing one job.",
+  ],
 ];
 
 const CHECKS = [
-  "Ownership enforced with WHERE employee_id = $1",
-  "Approval blocked unless remarks are provided",
-  "Overlapping leave rejected by a database constraint",
+  "Passwords hashed with bcrypt, cost factor 12 — never stored in plain text",
+  "Every manager-only route checks both identity and role, on the server, every time",
+  "Every employee query is scoped with WHERE employee_id = $1 — never filtered client-side",
+  "All file uploads are type-checked, size-capped, and renamed before they touch disk",
+  "Uploaded files are served only to their owner or the manager — never from a public folder",
+  "Every SQL statement is parameterized — no string concatenation, ever",
 ];
 
-function Reveal({
-  children,
-  delay = 0,
-  className,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) {
-  const reduce = useReducedMotion();
+function Check() {
   return (
-    <motion.div
-      initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
+    <svg viewBox="0 0 16 16" className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true">
+      <path
+        d="M3 8.5l3.2 3.2L13 5"
+        fill="none"
+        stroke="var(--elms-primary)"
+        strokeWidth="1.6"
+        strokeLinecap="square"
+      />
+    </svg>
   );
 }
 
-function Landing() {
-  const reduce = useReducedMotion();
-  const heroRef = useRef<HTMLElement | null>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const drift = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 90]);
-
-  const rise = (delay: number) =>
-    reduce
-      ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.4, delay } }
-      : {
-          initial: { opacity: 0, y: 22 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] as const },
-        };
-
+function Section({
+  id,
+  children,
+  className = "",
+}: {
+  id?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <div className="min-h-screen bg-paper font-sans text-ink">
-      {/* ── Nav ─────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-pencil/30 bg-paper/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5">
-          <a href="#top" className="focus-paper flex items-center gap-2 rounded-[2px]">
-            <span className="grid h-8 w-8 place-items-center rounded-[3px] bg-ink font-display text-[12px] text-paper">
-              E
-            </span>
-            <span className="font-display text-lg tracking-tight">ELMS</span>
+    <section id={id} className={`border-t border-elms-line ${className}`}>
+      <div className="mx-auto w-full max-w-[1120px] px-6 py-16 sm:py-20">{children}</div>
+    </section>
+  );
+}
+
+const btnBase =
+  "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-ink";
+const btnPrimary = `${btnBase} bg-elms-primary text-white hover:opacity-90`;
+const btnGhost = `${btnBase} border border-elms-line bg-elms-surface text-elms-ink hover:bg-elms-bg`;
+
+function Home() {
+  return (
+    <div className="min-h-screen bg-elms-bg font-sans text-elms-ink antialiased">
+      {/* Nav */}
+      <header className="sticky top-0 z-30 border-b border-elms-line bg-elms-bg/95 backdrop-blur-[2px]">
+        <div className="mx-auto flex w-full max-w-[1120px] items-center justify-between px-6 py-3">
+          <a href="#top" className="flex items-center gap-2 focus-ink">
+            <svg viewBox="0 0 20 20" className="h-5 w-5" aria-hidden="true">
+              <rect
+                x="2.5"
+                y="7.5"
+                width="15"
+                height="10"
+                rx="1.5"
+                fill="none"
+                stroke="var(--elms-primary)"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M6.5 7.5V5.5a3.5 3.5 0 017 0v2"
+                fill="none"
+                stroke="var(--elms-primary)"
+                strokeWidth="1.5"
+              />
+            </svg>
+            <span className="font-mono text-sm font-semibold tracking-tight">ELMS</span>
           </a>
-          <nav className="flex items-center gap-1 sm:gap-4">
-            {[
-              ["Features", "#features"],
-              ["Product", "#product"],
-              ["How it works", "#how"],
-            ].map(([label, href]) => (
+          <nav className="hidden items-center gap-7 md:flex">
+            {NAV.map(([label, href]) => (
               <a
                 key={label}
                 href={href}
-                className="focus-paper hidden rounded-[2px] px-2 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-pencil transition-colors hover:text-ink sm:inline-block"
+                className="text-sm text-elms-muted transition-colors hover:text-elms-ink focus-ink"
               >
                 {label}
               </a>
             ))}
-            <a
-              href="#product"
-              className="focus-paper rounded-[3px] border-2 border-ink bg-ink px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-paper transition-transform hover:-translate-y-0.5"
-            >
+          </nav>
+          <div className="flex items-center gap-2">
+            <a href="#docs" className={`${btnGhost} hidden sm:inline-flex`}>
+              View source
+            </a>
+            <a href="#workflow" className={btnPrimary}>
               Get started
             </a>
-          </nav>
+          </div>
         </div>
       </header>
 
-      {/* ── Hero ────────────────────────────────────────── */}
-      <section id="top" ref={heroRef} className="relative overflow-hidden border-b border-pencil/30">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 lg:grid-cols-[1.05fr_1fr] lg:py-24">
-          <div>
-            <motion.p
-              {...rise(0)}
-              className="inline-flex items-center gap-2 border-y border-pencil/50 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-pencil"
-            >
-              Role-based · JWT-secured · Audit-ready
-            </motion.p>
-
-            <motion.h1
-              {...rise(0.08)}
-              className="mt-6 max-w-[15ch] font-display text-[2.6rem] leading-[0.98] tracking-tight sm:text-6xl"
-            >
-              Leave requests that move as fast as your team
-            </motion.h1>
-
-            <motion.p {...rise(0.16)} className="mt-6 max-w-xl text-[17px] leading-relaxed text-ink/75">
-              An employee leave management system where ownership, roles, uploads, and balances are
-              enforced on the backend. The interface is just the convenient way in.
-            </motion.p>
-
-            <motion.div {...rise(0.24)} className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="#product"
-                className="focus-paper rounded-[3px] bg-ink px-6 py-3 font-mono text-[12px] font-semibold uppercase tracking-[0.14em] text-paper shadow-[var(--shadow-paper)] transition-transform hover:-translate-y-0.5"
-              >
-                See the product
-              </a>
-              <a
-                href="#how"
-                className="focus-paper rounded-[3px] border-2 border-ink px-6 py-3 font-mono text-[12px] font-semibold uppercase tracking-[0.14em] text-ink transition-transform hover:-translate-y-0.5"
-              >
-                How it works
-              </a>
-            </motion.div>
-
-            <motion.dl {...rise(0.32)} className="mt-12 flex flex-wrap gap-3">
-              {[
-                ["2h", "Token life"],
-                ["12", "Bcrypt rounds"],
-                ["100%", "Param SQL"],
-                ["0", "Trusted roles"],
-              ].map(([n, l], i) => (
-                <div
-                  key={l}
-                  style={{
-                    rotate: `${[-3, 2, -1.5, 3][i]}deg`,
-                    clipPath:
-                      "polygon(0 4%, 100% 0, 99% 96%, 60% 100%, 30% 96%, 0 100%)",
-                  }}
-                  className="paper-grain hover-lift bg-kraft px-4 py-2.5"
-                >
-                  <dt className="font-display text-lg leading-none">{n}</dt>
-                  <dd className="mt-1 whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.16em] text-pencil">
-                    {l}
-                  </dd>
-                </div>
-              ))}
-            </motion.dl>
-          </div>
-
-          <HeroCollage scrollDrift={drift} />
-        </div>
-      </section>
-
-      {/* ── Stack marquee ───────────────────────────────── */}
-      <div className="overflow-hidden border-b border-pencil/30 bg-kraft/45 py-3">
-        <div className="marquee-track flex w-max gap-8 whitespace-nowrap">
-          {[...STACK, ...STACK].map((t, i) => (
-            <span
-              key={`${t}-${i}`}
-              className="flex items-center gap-8 font-mono text-[11px] uppercase tracking-[0.24em] text-pencil"
-            >
-              {t}
-              <span className="h-1 w-1 rounded-full bg-pencil/50" />
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Features ────────────────────────────────────── */}
-      <section id="features" className="border-b border-pencil/30 py-20">
-        <div className="mx-auto max-w-6xl px-4">
-          <Reveal>
-            <h2 className="max-w-[20ch] font-display text-3xl leading-tight tracking-tight sm:text-4xl">
-              Everything the flow needs, nothing it doesn&apos;t
-            </h2>
-            <p className="mt-3 max-w-xl text-ink/70">
-              Six guarantees the API keeps even if the browser lies to it.
-            </p>
-          </Reveal>
-
-          <div className="mt-14 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f, i) => (
-              <Reveal key={f.title} delay={(i % 3) * 0.07}>
-                <article
-                  style={{ rotate: `${ROTATIONS[i]}deg` }}
-                  className="paper-grain hover-lift relative h-full rounded-[3px] border border-pencil/35 bg-white p-6 pt-8 shadow-[var(--shadow-paper)]"
-                >
-                  <span className="absolute left-1/2 top-3 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-stamp shadow-[0_1px_3px_rgba(0,0,0,0.35)]" />
-                  <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-pencil">
-                    {f.eyebrow}
-                  </p>
-                  <h3 className="mt-2 font-display text-lg tracking-tight">{f.title}</h3>
-                  <p className="mt-2.5 text-[14px] leading-relaxed text-ink/72">{f.body}</p>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Manager / product ───────────────────────────── */}
-      <section id="product" className="border-b border-pencil/30 bg-kraft/35 py-20">
-        <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 lg:grid-cols-2">
-          <Reveal>
-            <h2 className="max-w-[18ch] font-display text-3xl leading-tight tracking-tight sm:text-4xl">
-              One queue for the manager. One truth for everyone.
-            </h2>
-            <p className="mt-5 max-w-xl leading-relaxed text-ink/75">
-              Pending requests, balances, attached documents, and decision history sit on a single
-              screen. Every row is fetched with the caller&apos;s identity baked into the SQL — there
-              is no fetch-all-then-filter anywhere in the codebase.
-            </p>
-            <ul className="mt-7 space-y-3">
-              {CHECKS.map((c) => (
-                <li key={c} className="flex items-start gap-3">
-                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-[2px] border border-approve/50 bg-approve/10">
-                    <Check className="h-3 w-3 text-approve" strokeWidth={3} />
-                  </span>
-                  <span className="font-mono text-[12px] leading-relaxed text-ink/80">{c}</span>
-                </li>
-              ))}
-            </ul>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <InboxTray />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ── How it works ────────────────────────────────── */}
-      <section id="how" className="border-b border-pencil/30 py-20">
-        <div className="mx-auto max-w-6xl px-4">
-          <Reveal>
-            <h2 className="font-display text-3xl leading-tight tracking-tight sm:text-4xl">
-              Three steps, one source of truth.
-            </h2>
-          </Reveal>
-
-          <ol className="mt-14 grid gap-8 md:grid-cols-3">
-            {STEPS.map(([n, title, body], i) => (
-              <Reveal key={n} delay={i * 0.09}>
-                <li
-                  style={{ rotate: `${[-1.5, 1, -1][i]}deg` }}
-                  className="paper-grain hover-lift relative h-full overflow-hidden rounded-[3px] border border-pencil/35 bg-white p-6 pl-9 shadow-[var(--shadow-paper)]"
-                >
-                  {/* perforated stub edge */}
-                  <span
-                    className="absolute left-4 top-0 h-full w-px"
-                    style={{
-                      backgroundImage:
-                        "repeating-linear-gradient(to bottom, var(--pencil) 0 5px, transparent 5px 11px)",
-                      opacity: 0.6,
-                    }}
-                  />
-                  <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-pencil">
-                    {n} — Step
-                  </p>
-                  <h3 className="mt-2 font-display text-lg tracking-tight">{title}</h3>
-                  <p className="mt-2 text-[14px] leading-relaxed text-ink/72">{body}</p>
-
-                  {i === 1 && (
-                    <motion.div
-                      initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.8, rotate: 22 }}
-                      whileInView={reduce ? { opacity: 0.95 } : { opacity: 0.95, scale: 1, rotate: -9 }}
-                      viewport={{ once: true, margin: "-100px" }}
-                      transition={
-                        reduce
-                          ? { duration: 0.4 }
-                          : { duration: 0.2, delay: 0.25, ease: [0.3, 1.6, 0.5, 1] }
-                      }
-                      className="pointer-events-none absolute bottom-3 right-3 w-28"
-                    >
-                      <StampMark />
-                    </motion.div>
-                  )}
-                </li>
-              </Reveal>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* ── CTA ─────────────────────────────────────────── */}
-      <section className="border-b border-pencil/30 py-20">
-        <Reveal className="mx-auto max-w-3xl px-4">
-          <div className="paper-grain rounded-[3px] border-2 border-ink bg-white p-8 text-center shadow-[var(--shadow-lift)] sm:p-12">
-            <h2 className="font-display text-3xl tracking-tight sm:text-4xl">Ready when your team is</h2>
-            <p className="mx-auto mt-4 max-w-xl leading-relaxed text-ink/75">
-              Spin it up in minutes, connect your own database, and start routing real requests
-              through a workflow your team can trust.
-            </p>
-            <a
-              href="#top"
-              className="focus-paper mt-8 inline-block border-b-2 border-stamp pb-1 font-mono text-[12px] font-semibold uppercase tracking-[0.16em] text-stamp transition-transform hover:-translate-y-0.5"
-            >
-              Explore the system →
+      {/* Hero */}
+      <main id="top">
+        <section className="mx-auto w-full max-w-[1120px] px-6 pb-16 pt-16 sm:pt-24">
+          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-elms-muted">
+            Role-based access · JWT auth · Audit-logged
+          </p>
+          <h1 className="mt-5 max-w-3xl font-display text-4xl font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[56px]">
+            Leave requests, enforced end to end
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-elms-muted">
+            ELMS is an employee leave management system where every rule — who can approve, who can
+            see a file, who counts as a manager — is enforced by the backend, not the interface.
+            Here's exactly how a request moves through it.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a href="#workflow" className={btnPrimary}>
+              See how it works
+            </a>
+            <a href="#security" className={btnGhost}>
+              Read the security model
             </a>
           </div>
-        </Reveal>
-      </section>
 
-      <footer className="py-8 text-center font-mono text-[11px] uppercase tracking-[0.18em] text-pencil">
-        ELMS — React · Express · PostgreSQL · JWT
+          <div className="mt-14 rounded-lg border border-elms-line bg-elms-surface p-6 sm:p-8">
+            <RequestTrace />
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center font-mono text-[11px] text-elms-muted">
+            {STATS.map((s, i) => (
+              <span
+                key={s}
+                className={`py-1 pr-4 ${i > 0 ? "border-l border-elms-line pl-4" : ""}`}
+              >
+                {s}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        {/* Marquee */}
+        <div className="overflow-hidden border-y border-elms-line bg-elms-surface py-3">
+          <div className="marquee-track flex w-max">
+            {[0, 1].map((dup) => (
+              <ul
+                key={dup}
+                className="flex shrink-0 items-center"
+                aria-hidden={dup === 1 || undefined}
+              >
+                {STACK.map((t) => (
+                  <li
+                    key={t}
+                    className="px-6 font-mono text-[11px] uppercase tracking-[0.18em] text-elms-muted/80"
+                  >
+                    {t}
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
+
+        {/* What this is */}
+        <Section id="product">
+          <div className="grid gap-10 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+            <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
+              What ELMS actually does
+            </h2>
+            <p className="max-w-2xl text-base leading-relaxed text-elms-muted">
+              Employees apply for leave with a reason, a date range, and a supporting document.
+              Managers see every request in one queue, open the attached file, and approve or reject
+              it with a required comment. Status changes reach the employee once, and only once.
+              That's the whole product — the rest of this page is about how it stays correct and
+              secure while doing it.
+            </p>
+          </div>
+        </Section>
+
+        {/* Workflow */}
+        <Section id="workflow" className="bg-elms-surface">
+          <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
+            Three steps, no shortcuts
+          </h2>
+          <div className="mt-10 rounded-lg border border-elms-line bg-elms-bg p-6 sm:p-10">
+            <RequestTrace large />
+          </div>
+          <ol className="mt-10 grid gap-px overflow-hidden rounded-lg border border-elms-line bg-elms-line md:grid-cols-3">
+            {STEPS.map((s, i) => (
+              <li key={s.route} className="bg-elms-surface p-6">
+                <p className="font-mono text-[11px] text-elms-primary">{s.route}</p>
+                <h3 className="mt-3 text-sm font-semibold">
+                  <span className="mr-2 font-mono text-elms-muted">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  {s.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-elms-muted">{s.body}</p>
+              </li>
+            ))}
+          </ol>
+        </Section>
+
+        {/* Built with */}
+        <Section id="docs">
+          <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
+            Built with
+          </h2>
+          <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-elms-line bg-elms-line sm:grid-cols-2 lg:grid-cols-4">
+            {BUILT_WITH.map(([kind, stack, why]) => (
+              <div key={kind} className="bg-elms-surface p-6">
+                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-elms-muted">
+                  {kind}
+                </p>
+                <h3 className="mt-3 text-sm font-semibold">{stack}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-elms-muted">{why}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {/* Security */}
+        <Section id="security" className="bg-elms-surface">
+          <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
+            Nothing here is optional
+          </h2>
+          <ul className="mt-10 grid gap-x-10 gap-y-4 md:grid-cols-2">
+            {CHECKS.map((c) => (
+              <li key={c} className="flex items-start gap-3">
+                <Check />
+                <span className="font-mono text-[13px] leading-relaxed text-elms-ink">{c}</span>
+              </li>
+            ))}
+          </ul>
+        </Section>
+
+        {/* Two roles */}
+        <Section>
+          <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
+            One system, two clear roles
+          </h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            {[
+              [
+                "Employee",
+                "Apply for leave, attach a document, track status, get notified once. Can only ever see their own requests.",
+              ],
+              [
+                "Manager",
+                "One fixed account, seeded once. Review every request, open attached documents, approve or reject with a comment.",
+              ],
+            ].map(([role, body]) => (
+              <div key={role} className="rounded-lg border border-elms-line bg-elms-surface p-6">
+                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-elms-muted">
+                  Role
+                </p>
+                <h3 className="mt-3 font-display text-lg font-semibold tracking-[-0.01em]">
+                  {role}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-elms-muted">{body}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {/* CTA */}
+        <Section className="bg-elms-surface">
+          <div className="max-w-2xl">
+            <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
+              See the whole flow
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-elms-muted">
+              Walk through a real leave request, from submission to approval, in about two minutes.
+            </p>
+            <a
+              href="#workflow"
+              className="mt-6 inline-flex items-center gap-2 rounded-md border border-elms-primary px-4 py-2 text-sm font-medium text-elms-primary transition-colors hover:bg-elms-primary hover:text-white focus-ink"
+            >
+              Explore the system <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </Section>
+      </main>
+
+      <footer className="border-t border-elms-line">
+        <div className="mx-auto w-full max-w-[1120px] px-6 py-8">
+          <p className="font-mono text-[11px] text-elms-muted">
+            ELMS — React · Express · PostgreSQL · JWT
+          </p>
+        </div>
       </footer>
     </div>
   );
