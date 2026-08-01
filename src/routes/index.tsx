@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Apply, review and audit employee leave in one secure workflow. Role-based access, JWT auth and backend-enforced rules.",
+          "Apply, review and audit employee leave in one secure workflow. Role-based access, JWT auth and every rule enforced on the backend.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

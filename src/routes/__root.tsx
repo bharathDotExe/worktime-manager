@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "ELMS — Employee Leave Management System" },
+      { name: "description", content: "Apply, review and audit employee leave in one secure workflow. Role-based access, JWT auth and every rule enforced on the backend." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "ELMS — Employee Leave Management System" },
+      { property: "og:description", content: "Apply, review and audit employee leave in one secure workflow. Role-based access, JWT auth and every rule enforced on the backend." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "ELMS — Employee Leave Management System" },
+      { name: "twitter:description", content: "Apply, review and audit employee leave in one secure workflow. Role-based access, JWT auth and every rule enforced on the backend." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/f4ee11ab-d2b6-4ac9-8126-099bacc6e2f9" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/f4ee11ab-d2b6-4ac9-8126-099bacc6e2f9" },
     ],
     links: [
       {
