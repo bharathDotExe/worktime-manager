@@ -173,7 +173,38 @@ function Home() {
 
       {/* Hero */}
       <main id="top">
-        <section className="mx-auto w-full max-w-[1120px] px-6 pb-16 pt-16 sm:pt-24">
+        <section className="relative isolate overflow-hidden border-b border-elms-line">
+          {/* Static photographic backdrop, duotone-graded into the palette */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+            <div
+              className="hidden h-full w-full bg-cover bg-center sm:block"
+              style={{
+                backgroundImage: `url(${officeHero})`,
+                filter: "grayscale(0.78) contrast(1.05) brightness(1.02)",
+              }}
+            />
+            <div
+              className="hidden h-full w-full sm:block"
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundColor: "var(--elms-ink)",
+                mixBlendMode: "color",
+                opacity: 0.25,
+              }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(90deg, color-mix(in oklab, var(--elms-bg) 92%, transparent) 0%, color-mix(in oklab, var(--elms-bg) 86%, transparent) 45%, color-mix(in oklab, var(--elms-bg) 40%, transparent) 100%)",
+              }}
+            />
+            {/* Small screens: solid fallback for guaranteed contrast */}
+            <div className="absolute inset-0 bg-elms-bg sm:hidden" />
+          </div>
+
+          <div className="mx-auto w-full max-w-[1120px] px-6 pb-16 pt-16 sm:pt-24">
           <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-elms-muted">
             Role-based access · JWT auth · Audit-logged
           </p>
