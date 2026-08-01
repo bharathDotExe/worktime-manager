@@ -53,7 +53,7 @@ export default function RequestTrace({ large = false }: { large?: boolean }) {
   const W = 1040;
   const H = large ? 150 : 132;
   const y = 52;
-  const step = (W - 120) / (TRACE_NODES.length - 1);
+  const step = (W - 240) / (TRACE_NODES.length - 1);
 
   return (
     <div>
@@ -66,24 +66,24 @@ export default function RequestTrace({ large = false }: { large?: boolean }) {
           aria-label="Request lifecycle: client submits request, verify JWT, check role, validate input, parameterized query scoped to the caller's own data."
         >
           <line
-            x1="60"
+            x1="120"
             y1={y}
-            x2={W - 60}
+            x2={W - 120}
             y2={y}
             stroke="var(--elms-line)"
             strokeWidth="1"
           />
           <line
-            x1="60"
+            x1="120"
             y1={y}
-            x2={W - 60}
+            x2={W - 120}
             y2={y}
             stroke="var(--elms-primary)"
             strokeWidth="1.5"
             className="elms-draw"
           />
           {TRACE_NODES.map((n, i) => {
-            const cx = 60 + i * step;
+            const cx = 120 + i * step;
             return (
               <g
                 key={n.id}
