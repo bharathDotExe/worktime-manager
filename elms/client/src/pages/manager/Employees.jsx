@@ -38,7 +38,7 @@ export default function Employees() {
           {employees.map((e) => (
             <article key={e.id} className="card p-4">
               <div className="flex min-w-0 items-center gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent-50 text-sm font-bold uppercase text-accent-700">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#E7F2EC] text-sm font-bold uppercase text-elms-primary">
                   {e.username.slice(0, 2)}
                 </span>
                 <div className="min-w-0">
