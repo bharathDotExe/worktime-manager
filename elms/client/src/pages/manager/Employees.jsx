@@ -21,7 +21,7 @@ export default function Employees() {
   return (
     <Layout links={MANAGER_LINKS}>
       <h1 className="text-2xl font-bold tracking-tight">Employees</h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <p className="mt-1 text-sm text-elms-muted">
         {loading ? "Loading…" : `${employees.length} account${employees.length === 1 ? "" : "s"}`}
       </p>
 
@@ -29,8 +29,8 @@ export default function Employees() {
         <p className="mt-4 rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>
       )}
 
-      {loading && <p className="card mt-6 text-sm text-slate-500">Loading employees…</p>}
-      {empty && <p className="card mt-6 text-sm text-slate-500">No employee accounts yet.</p>}
+      {loading && <p className="card mt-6 text-sm text-elms-muted">Loading employees…</p>}
+      {empty && <p className="card mt-6 text-sm text-elms-muted">No employee accounts yet.</p>}
 
       {/* Mobile cards */}
       {!loading && !empty && (
@@ -42,8 +42,8 @@ export default function Employees() {
                   {e.username.slice(0, 2)}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-slate-900">{e.username}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="truncate font-medium text-elms-ink">{e.username}</p>
+                  <p className="text-xs text-elms-muted">
                     Joined {new Date(e.created_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -65,7 +65,7 @@ export default function Employees() {
       {!loading && !empty && (
         <div className="card mt-6 hidden overflow-x-auto p-0 md:block">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-elms-muted">
               <tr>
                 <th className="px-4 py-3">#</th>
                 <th className="px-4 py-3">Username</th>
