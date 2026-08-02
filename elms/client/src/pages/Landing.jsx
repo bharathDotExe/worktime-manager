@@ -2,11 +2,14 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import officeHero from "../assets/office-hero.jpg";
+import heroMonitorSticker from "../assets/hero-monitor-sticker.png";
 import RequestTrace from "../components/trace/RequestTrace.jsx";
+import SystemArchitecture from "../components/SystemArchitecture.jsx";
 import AuthModal from "../components/AuthModal.jsx";
 
 const NAV = [
   ["Product", "#product"],
+  ["Architecture", "#architecture"],
   ["Security", "#security"],
   ["Workflow", "#workflow"],
   ["Docs", "#docs"],
@@ -81,10 +84,10 @@ function Check() {
   );
 }
 
-function Section({ id, children, className = "" }) {
+function Section({ id, children, className = "", contentClassName = "px-6 py-16 sm:py-20" }) {
   return (
     <section id={id} className={`border-t border-elms-line ${className}`}>
-      <div className="mx-auto w-full max-w-[1120px] px-6 py-16 sm:py-20">{children}</div>
+      <div className={`mx-auto w-full max-w-[1120px] ${contentClassName}`}>{children}</div>
     </section>
   );
 }
@@ -98,6 +101,7 @@ export default function Landing() {
   const { user } = useAuth();
   const home = user ? (user.role === "manager" ? "/manager/requests" : "/dashboard") : "/login";
   const [authModal, setAuthModal] = useState(null);
+  const [mobileNav, setMobileNav] = useState(false);
 
   return (
     <div className="min-h-screen bg-elms-bg font-sans text-elms-ink antialiased">
@@ -138,6 +142,18 @@ export default function Landing() {
             ))}
           </nav>
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="Open navigation menu"
+              aria-expanded={mobileNav}
+              aria-controls="mobile-navigation"
+              onClick={() => setMobileNav((open) => !open)}
+              className={`${btnGhost} h-10 w-10 px-0 md:hidden`}
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
+              </svg>
+            </button>
             {user ? (
               <Link to={home} className={`${btnGhost} hidden sm:inline-flex`}>
                 Dashboard
@@ -158,6 +174,22 @@ export default function Landing() {
             )}
           </div>
         </div>
+        {mobileNav && (
+          <nav id="mobile-navigation" aria-label="Mobile navigation" className="border-t border-elms-line bg-elms-bg px-6 py-3 md:hidden">
+            <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-1">
+              {NAV.map(([label, href]) => (
+                <a key={label} href={href} onClick={() => setMobileNav(false)} className="rounded-md px-3 py-2 text-sm text-elms-muted hover:bg-elms-surface hover:text-elms-ink focus-ink">
+                  {label}
+                </a>
+              ))}
+              {!user && (
+                <button type="button" onClick={() => { setMobileNav(false); setAuthModal("login"); }} className="mt-1 rounded-md border border-elms-line bg-elms-surface px-3 py-2 text-left text-sm font-medium text-elms-ink hover:bg-elms-bg focus-ink">
+                  Sign in
+                </button>
+              )}
+            </div>
+          </nav>
+        )}
       </header>
 
       {/* Hero */}
@@ -169,7 +201,7 @@ export default function Landing() {
               className="hidden h-full w-full bg-cover bg-center sm:block"
               style={{
                 backgroundImage: `url(${officeHero})`,
-                filter: "grayscale(0.78) contrast(1.05) brightness(1.02)",
+                filter: "grayscale(0.55) contrast(1.12) brightness(0.86)",
               }}
             />
             <div
@@ -179,21 +211,22 @@ export default function Landing() {
                 inset: 0,
                 backgroundColor: "var(--elms-ink)",
                 mixBlendMode: "color",
-                opacity: 0.25,
+                opacity: 0.12,
               }}
             />
             <div
               className="absolute inset-0"
               style={{
                 background:
-                  "linear-gradient(90deg, color-mix(in oklab, var(--elms-bg) 92%, transparent) 0%, color-mix(in oklab, var(--elms-bg) 86%, transparent) 45%, color-mix(in oklab, var(--elms-bg) 40%, transparent) 100%)",
+                  "linear-gradient(90deg, rgba(246, 247, 249, 0.98) 0%, rgba(246, 247, 249, 0.94) 48%, rgba(246, 247, 249, 0.76) 66%, rgba(246, 247, 249, 0.18) 100%)",
               }}
             />
             {/* Small screens: solid fallback for guaranteed contrast */}
             <div className="absolute inset-0 bg-elms-bg sm:hidden" />
           </div>
 
-          <div className="relative z-10 mx-auto w-full max-w-[1120px] px-6 pb-16 pt-16 sm:pt-24">
+
+          <div className="relative z-10 mx-auto flex min-h-[480px] w-full max-w-[1120px] flex-col justify-center px-6 py-16 sm:min-h-[540px] sm:py-24">
           <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-elms-muted">
             Role-based access · JWT auth · Audit-logged
           </p>
@@ -245,7 +278,7 @@ export default function Landing() {
         </div>
 
         {/* What this is */}
-        <Section id="product">
+        <Section id="product" contentClassName="px-6 pb-16 pt-10 sm:pb-20 sm:pt-12">
           <div className="grid gap-10 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
             <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
               What ELMS actually does
@@ -259,6 +292,9 @@ export default function Landing() {
             </p>
           </div>
         </Section>
+
+        {/* System Architecture */}
+        <SystemArchitecture />
 
         {/* Workflow */}
         <Section id="workflow" className="bg-elms-surface">
@@ -347,8 +383,8 @@ export default function Landing() {
         </Section>
 
         {/* CTA */}
-        <Section className="bg-elms-surface">
-          <div className="max-w-2xl">
+        <Section className="bg-elms-surface relative isolate overflow-hidden">
+          <div className="max-w-2xl relative z-10">
             <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
               See the whole flow
             </h2>
@@ -370,6 +406,9 @@ export default function Landing() {
                 Explore the system <span aria-hidden="true">→</span>
               </button>
             )}
+          </div>
+          <div aria-hidden="true" className="pointer-events-none absolute right-[6%] top-1/2 z-[5] hidden w-[320px] -translate-y-1/2 lg:block xl:w-[390px] animate-float">
+            <img src={heroMonitorSticker} alt="" className="w-full drop-shadow-[0_24px_28px_rgba(20,23,31,0.25)]" />
           </div>
         </Section>
       </main>

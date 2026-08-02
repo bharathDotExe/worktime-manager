@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Layout from "../../components/Layout.jsx";
 import StatusBadge from "../../components/StatusBadge.jsx";
 import api, { errorMessage } from "../../api/client";
@@ -17,6 +17,32 @@ function ReviewModal({ leave, onClose, onDone }) {
   const [remarks, setRemarks] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const dialogRef = useRef(null);
+  const previousFocusRef = useRef(null);
+
+  useEffect(() => {
+    previousFocusRef.current = document.activeElement;
+    const focusable = dialogRef.current?.querySelectorAll("button:not([disabled]), textarea:not([disabled])");
+    focusable?.[0]?.focus();
+    function handleKeyDown(e) {
+      if (e.key === "Escape" && !busy) onClose();
+      if (e.key !== "Tab" || !focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      previousFocusRef.current?.focus?.();
+    };
+  }, [busy, onClose]);
 
   async function confirm() {
     if (remarks.trim().length < 3) return setError("Remarks are required");
@@ -34,8 +60,9 @@ function ReviewModal({ leave, onClose, onDone }) {
 
   return (
     <div className="fixed inset-0 z-40 flex items-end justify-center overflow-y-auto bg-slate-900/40 p-4 sm:items-center">
-      <div className="card w-full max-w-md p-4 sm:p-6">
-        <h2 className="text-lg font-semibold">Review request #{leave.id}</h2>
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="review-dialog-title" className="card relative w-full max-w-md p-4 sm:p-6">
+        <h2 id="review-dialog-title" className="text-lg font-semibold">Review request #{leave.id}</h2>
+        <button type="button" onClick={onClose} disabled={busy} aria-label="Close review dialog" className="absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-md text-slate-500 hover:bg-slate-100 focus-ink">�</button>
         <p className="mt-1 text-sm text-slate-500">
           {leave.employee_username} · {fmt(leave.start_date)} → {fmt(leave.end_date)}
         </p>
@@ -70,7 +97,7 @@ function ReviewModal({ leave, onClose, onDone }) {
         </div>
 
         {error && (
-          <p className="mt-3 rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>
+          <p role="alert" className="mt-3 rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>
         )}
 
         <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
@@ -89,6 +116,7 @@ function ReviewModal({ leave, onClose, onDone }) {
 export default function LeaveRequests() {
   const [filter, setFilter] = useState("pending");
   const [leaves, setLeaves] = useState([]);
+  const [summary, setSummary] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [active, setActive] = useState(null);
@@ -98,10 +126,16 @@ export default function LeaveRequests() {
     setLoading(true);
     setError("");
     try {
-      const { data } = await api.get("/leaves", {
+      const visibleRequest = api.get("/leaves", {
         params: filter === "all" ? {} : { status: filter },
       });
-      setLeaves(data.leaves || []);
+      const summaryRequest = filter === "all" ? visibleRequest : api.get("/leaves");
+      const [{ data: visibleData }, { data: summaryData }] = await Promise.all([
+        visibleRequest,
+        summaryRequest,
+      ]);
+      setLeaves(visibleData.leaves || []);
+      setSummary(summaryData.leaves || []);
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -116,14 +150,14 @@ export default function LeaveRequests() {
   const empty = !loading && leaves.length === 0;
 
   const counts = {
-    total: leaves.length,
-    approved: leaves.filter((l) => l.status === "approved").length,
-    pending: leaves.filter((l) => l.status === "pending").length,
-    rejected: leaves.filter((l) => l.status === "rejected").length,
+    total: summary.length,
+    approved: summary.filter((l) => l.status === "approved").length,
+    pending: summary.filter((l) => l.status === "pending").length,
+    rejected: summary.filter((l) => l.status === "rejected").length,
   };
 
   const TILES = [
-    { key: "total", label: "In this view", tone: "bg-accent-50 text-accent-600" },
+    { key: "total", label: "All requests", tone: "bg-accent-50 text-accent-600" },
     { key: "approved", label: "Approved", tone: "bg-emerald-50 text-emerald-600" },
     { key: "pending", label: "Pending", tone: "bg-amber-50 text-amber-600" },
     { key: "rejected", label: "Rejected", tone: "bg-rose-50 text-rose-600" },
@@ -148,7 +182,7 @@ export default function LeaveRequests() {
             </span>
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-slate-700">{t.label}</p>
-              <p className="text-xs text-slate-400">Current filter: {filter}</p>
+              <p className="text-xs text-slate-400">Across all statuses</p>
             </div>
           </div>
         ))}
@@ -171,7 +205,7 @@ export default function LeaveRequests() {
       </div>
 
       {error && (
-        <p className="mt-4 rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>
+        <p role="alert" className="mt-4 rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>
       )}
 
       {loading && <p className="card mt-6 text-sm text-slate-500">Loading requests…</p>}

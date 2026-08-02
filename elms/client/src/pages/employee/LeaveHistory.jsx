@@ -37,7 +37,7 @@ export default function LeaveHistory() {
       <p className="mt-1 text-sm text-slate-500">Every request you have filed, newest first.</p>
 
       {error && (
-        <p className="mt-4 rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>
+        <p role="alert" className="mt-4 rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>
       )}
 
       {loading && <p className="card mt-6 text-sm text-slate-500">Loading requests…</p>}

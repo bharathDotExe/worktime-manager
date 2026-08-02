@@ -105,7 +105,7 @@ export default function ApplyLeave() {
           />
         </div>
 
-        {error && <p className="rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
+        {error && <p role="alert" className="rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
 
         <div className="flex gap-3">
           <button type="submit" className="btn-primary" disabled={busy}>
