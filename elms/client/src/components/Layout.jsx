@@ -121,7 +121,7 @@ export default function Layout({ children, links = [] }) {
       {/* Sidebar — desktop */}
       <aside className={`sticky top-0 hidden h-screen w-[240px] shrink-0 flex-col p-4 lg:flex ${sidebarTone}`}>
         <Link to="/" className="mb-6 flex items-center gap-2 px-2 py-2 text-white">
-          <img src="/elms_icon.png" alt="ELMS" className="h-[46px] w-[46px] object-contain" />
+          <img src="/elms_icon.png" alt="ELMS" className="h-[70px] w-[70px] object-contain scale-[1.8]" />
           <span className="font-display text-xl font-bold tracking-tight">ELMS</span>
         </Link>
         {nav}

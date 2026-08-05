@@ -527,11 +527,11 @@ export default function LeaveRequests() {
                 key={t.key}
                 className="flex items-center gap-3 xl:gap-4 rounded-[16px] border border-[#E2E8F5] bg-white p-4 shadow-[0_2px_12px_rgba(22,55,120,0.03)]"
               >
-                <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-[12px] ${t.tone}`}>
+                <span className={`grid h-[64px] w-[64px] shrink-0 place-items-center rounded-[16px] ${t.tone}`}>
                   <img
                     src={t.img}
                     alt={t.label}
-                    className="h-[44px] w-[44px] object-contain"
+                    className="h-full w-full object-contain scale-[1.7]"
                     aria-hidden="true"
                   />
                 </span>
