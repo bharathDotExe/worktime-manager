@@ -118,11 +118,11 @@ export default function Layout({ children, links = [] }) {
           <span className="font-display text-xl font-bold tracking-tight">ELMS</span>
         </Link>
         {nav}
-        <div className="mt-auto overflow-hidden rounded-[20px] bg-[#0E8B65] p-5 pl-[85px] text-white relative shadow-[0_4px_20px_rgba(0,0,0,0.15)] min-h-[60px] flex items-center">
+        <div className="mt-auto overflow-visible rounded-[20px] bg-[#0E8B65] p-5 pl-[85px] text-white relative shadow-[0_4px_20px_rgba(0,0,0,0.15)] min-h-[60px] flex items-center">
           <img 
             src="/indoor_plant.png" 
             alt="Decorative Plant" 
-            className="absolute -bottom-2 -left-4 w-[90px] h-[110px] object-cover object-bottom drop-shadow-[0_8px_12px_rgba(0,0,0,0.25)] mix-blend-normal pointer-events-none" 
+            className="absolute -bottom-4 -left-6 w-[150px] h-[180px] object-cover object-bottom drop-shadow-[0_8px_12px_rgba(0,0,0,0.25)] mix-blend-normal pointer-events-none" 
           />
           <div className="relative z-10 w-full">
             <button className="flex w-full items-center justify-between text-[13px] font-semibold text-white transition-opacity hover:opacity-80">
