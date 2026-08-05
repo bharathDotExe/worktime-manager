@@ -3,7 +3,7 @@ import Layout from "../../components/Layout.jsx";
 import StatusBadge from "../../components/StatusBadge.jsx";
 import api, { errorMessage } from "../../api/client";
 import { MANAGER_LINKS } from "../../nav";
-import { openDocument } from "../../api/documents";
+import { openDocument, fetchDocumentUrl } from "../../api/documents";
 import { useToast } from "../../components/Toast.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { cacheGet, cacheSet, cacheInvalidate } from "../../api/cache";
@@ -148,8 +148,19 @@ function ReviewModal({ leave, onClose, onDone }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState(false);
+  const [docPreview, setDocPreview] = useState(null);
   const dialogRef = useRef(null);
   const previousFocusRef = useRef(null);
+
+  useEffect(() => {
+    if (leave.has_document) {
+      let active = true;
+      fetchDocumentUrl(leave.id).then(res => {
+        if (active) setDocPreview(res);
+      }).catch(err => console.error("Failed to fetch document preview", err));
+      return () => { active = false; };
+    }
+  }, [leave.id, leave.has_document]);
 
   useEffect(() => {
     previousFocusRef.current = document.activeElement;
@@ -199,11 +210,14 @@ function ReviewModal({ leave, onClose, onDone }) {
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4 shrink-0">
-          <div>
-            <h2 className="font-display text-lg font-bold text-slate-900">Review Request #{leave.id}</h2>
-            <p className="mt-0.5 text-xs text-slate-500">
-              {leave.employee_username} • {fmt(leave.start_date)} — {fmt(leave.end_date)}
-            </p>
+          <div className="flex items-center gap-3">
+            <Avatar name={leave.employee_username} />
+            <div>
+              <h2 className="font-display text-lg font-bold text-slate-900">{leave.employee_username}</h2>
+              <p className="mt-0.5 text-xs text-slate-500">
+                Request #{leave.id} • {fmt(leave.start_date)} — {fmt(leave.end_date)}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-1">
             <button
@@ -243,22 +257,66 @@ function ReviewModal({ leave, onClose, onDone }) {
         {/* Scrollable Body */}
         <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
           
+          <div className="grid grid-cols-2 gap-4">
+            <div className={`rounded-xl border border-slate-100 bg-slate-50 p-4 col-span-2`}>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Leave Type</p>
+                  <p className="text-sm font-bold text-slate-800">
+                    {leave.reason.toLowerCase().includes("sick") || leave.reason.toLowerCase().includes("unwell") 
+                      ? "Sick Leave" 
+                      : leave.reason.toLowerCase().includes("casual") || leave.reason.toLowerCase().includes("personal") 
+                      ? "Casual Leave" 
+                      : "Annual Leave"}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Duration</p>
+                  <p className="text-sm font-bold text-slate-800">{days(leave.start_date, leave.end_date)}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Reason</p>
             <p className="text-sm text-slate-800 leading-relaxed">{leave.reason}</p>
-            {leave.has_document && (
-              <button
-                type="button"
-                onClick={() => openDocument(leave.id)}
-                className="mt-3 flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-[#1769F0] transition hover:bg-[#F4F7FF]"
-              >
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                </svg>
-                View Attachment
-              </button>
-            )}
           </div>
+
+          {leave.has_document && (
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Supporting Document</p>
+                <button
+                  type="button"
+                  onClick={() => openDocument(leave.id)}
+                  className="flex items-center gap-1.5 text-[11px] font-semibold text-[#1769F0] hover:underline"
+                >
+                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Open Original
+                </button>
+              </div>
+              {docPreview ? (
+                docPreview.type.startsWith("image/") ? (
+                  <img src={docPreview.url} alt="Attachment Preview" className="w-full max-h-48 object-contain rounded-lg border border-slate-200 bg-white" />
+                ) : (
+                  <iframe src={docPreview.url} className="w-full h-48 rounded-lg border border-slate-200 bg-white" title="Attachment Preview"></iframe>
+                )
+              ) : (
+                <div className="w-full h-32 flex items-center justify-center rounded-lg border border-slate-200 border-dashed bg-slate-100">
+                  <div className="flex flex-col items-center gap-2 text-slate-400">
+                    <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                    </svg>
+                    <span className="text-xs font-medium">Loading preview...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div>
             <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-2 block">Decision</span>
