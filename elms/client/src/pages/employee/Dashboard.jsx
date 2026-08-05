@@ -83,27 +83,30 @@ export default function Dashboard() {
 
       <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {CARDS.map((c) => (
-          <div key={c.key} className="card hover-lift flex items-center gap-4 p-4 sm:p-5">
-            <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${c.tone}`}>
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-5 w-5"
-                aria-hidden="true"
-              >
-                <path d={c.d} />
-              </svg>
-            </span>
-            <div className="min-w-0">
-              <p className="text-2xl font-bold leading-none text-slate-900">
-                {loading ? "…" : (stats?.[c.key] ?? 0)}
-              </p>
-              <p className="mt-1 truncate text-sm font-medium text-slate-700">{c.label}</p>
-              <p className="text-xs text-slate-400">{c.sub}</p>
+          <div key={c.key} className="card hover-lift p-4 sm:p-5">
+            {/* Mobile: stacked. Desktop: horizontal */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${c.tone}`}>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                >
+                  <path d={c.d} />
+                </svg>
+              </span>
+              <div className="min-w-0">
+                <p className="text-2xl font-bold leading-none text-slate-900">
+                  {loading ? "…" : (stats?.[c.key] ?? 0)}
+                </p>
+                <p className="mt-1 text-sm font-medium text-slate-700 leading-tight">{c.label}</p>
+                <p className="text-xs text-slate-400">{c.sub}</p>
+              </div>
             </div>
           </div>
         ))}

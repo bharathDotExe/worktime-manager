@@ -398,6 +398,7 @@ export default function SystemArchitecture() {
   const [showMermaid,  setShowMermaid]  = useState(false);
   const [compactScale, setCompactScale] = useState(0);   // 0 = not yet measured
   const [compactXOff,  setCompactXOff]  = useState(0);
+  const [compactH,     setCompactH]     = useState("100vh"); // dynamic on mobile
 
   const prefersReduced =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -410,10 +411,15 @@ export default function SystemArchitecture() {
     if (!el) return;
     const update = () => {
       const cw = el.clientWidth;
-      const ch = el.clientHeight;
-      if (!cw || !ch) return;
+      if (!cw) return;
+      // On mobile (< 640px), drive height from the SVG aspect ratio so the
+      // diagram fills the box without dead space. On desktop keep 100vh.
+      const isMobile = window.innerWidth < 640;
+      const targetH  = isMobile ? Math.round((VH / VW) * cw) + 32 : window.innerHeight;
+      const ch = targetH;
       const s    = Math.min(cw / VW, ch / VH);
       const xOff = Math.max(0, (cw - VW * s) / 2);
+      setCompactH(isMobile ? targetH + "px" : "100vh");
       setCompactScale(s);
       setCompactXOff(xOff);
     };
@@ -575,7 +581,7 @@ export default function SystemArchitecture() {
             ref={compactRef}
             className="relative mt-10 rounded-lg border border-elms-line"
             style={{
-              height: "100vh",
+              height: compactH,
               overflow: "hidden",
               background: "#fafafa",
               backgroundImage: "radial-gradient(circle, #c8cdd6 1px, transparent 1px)",
