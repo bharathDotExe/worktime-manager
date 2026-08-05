@@ -139,14 +139,12 @@ function Avatar({ name = "", avatarUrl = null }) {
     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#E7F2EC] text-xs font-bold uppercase text-elms-primary">
       {name.slice(0, 2)}
     </span>
-  );
-}
-
-function ReviewModal({ leave, onClose, onDone }) {
+  );function ReviewModal({ leave, onClose, onDone }) {
   const [status, setStatus] = useState("approved");
   const [remarks, setRemarks] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [expanded, setExpanded] = useState(false);
   const dialogRef = useRef(null);
   const previousFocusRef = useRef(null);
 
@@ -189,88 +187,166 @@ function ReviewModal({ leave, onClose, onDone }) {
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center overflow-y-auto bg-elms-ink/40 p-4 sm:items-center">
-      <div className="w-full max-w-md rounded-xl border border-elms-line bg-elms-surface p-4 sm:p-6">
-        <h2 className="font-display text-lg font-bold text-elms-ink">Review request #{leave.id}</h2>
-        <p className="mt-1 text-sm text-elms-muted">
-          {leave.employee_username} • {fmt(leave.start_date)} — {fmt(leave.end_date)}
-        </p>
-
-        <div className="mt-4 rounded-md border border-elms-line bg-slate-50 p-3 text-sm text-slate-700">
-          <p className="mb-1 font-semibold text-elms-ink">Reason</p>
-          <p>{leave.reason}</p>
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+      <div
+        className={`relative z-10 w-full rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col transition-all duration-300 ease-out ${
+          expanded ? "max-w-4xl max-h-[90vh]" : "max-w-md max-h-[85vh]"
+        }`}
+        ref={dialogRef}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4 shrink-0">
+          <div>
+            <h2 className="font-display text-lg font-bold text-slate-900">Review Request #{leave.id}</h2>
+            <p className="mt-0.5 text-xs text-slate-500">
+              {leave.employee_username} • {fmt(leave.start_date)} — {fmt(leave.end_date)}
+            </p>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-200/70 hover:text-slate-700 transition"
+              aria-label={expanded ? "Collapse" : "Expand"}
+              title={expanded ? "Collapse" : "Expand"}
+            >
+              {expanded ? (
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="4 14 10 14 10 20"/>
+                  <polyline points="20 10 14 10 14 4"/>
+                  <line x1="14" y1="10" x2="21" y2="3"/>
+                  <line x1="3" y1="21" x2="10" y2="14"/>
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 3 21 3 21 9"/>
+                  <polyline points="9 21 3 21 3 15"/>
+                  <line x1="21" y1="3" x2="14" y2="10"/>
+                  <line x1="3" y1="21" x2="10" y2="14"/>
+                </svg>
+              )}
+            </button>
+            <button
+              onClick={onClose}
+              className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-200/70 hover:text-slate-700 transition"
+              disabled={busy}
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
         </div>
 
-        {leave.has_document && (
-          <div className="mt-3">
-             <button
-               type="button"
-               onClick={() => openDocument(leave.id)}
-               className="flex items-center gap-2 rounded-md border border-elms-line bg-white px-3 py-1.5 text-sm font-medium text-[#1769F0] transition hover:bg-[#F4F7FF]"
-             >
-               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-               </svg>
-               View Attachment
-             </button>
-          </div>
-        )}
-
-        <div className="mt-4">
-          <span className="mb-1 block text-sm font-medium text-elms-ink">Decision</span>
-          <div className="grid grid-cols-2 gap-2">
-            {["approved", "rejected"].map((s) => (
+        {/* Scrollable Body */}
+        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
+          
+          <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Reason</p>
+            <p className="text-sm text-slate-800 leading-relaxed">{leave.reason}</p>
+            {leave.has_document && (
               <button
-                key={s}
                 type="button"
-                onClick={() => setStatus(s)}
-                className={`rounded-md px-4 py-2 text-sm font-medium capitalize transition ${
-                  status === s
-                    ? "bg-elms-primary text-white"
-                    : "border border-elms-line bg-elms-surface text-elms-ink hover:bg-elms-bg"
-                }`}
+                onClick={() => openDocument(leave.id)}
+                className="mt-3 flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-[#1769F0] transition hover:bg-[#F4F7FF]"
               >
-                {s}
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                </svg>
+                View Attachment
               </button>
-            ))}
+            )}
           </div>
+
+          <div>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-2 block">Decision</span>
+            <div className={`grid gap-3 ${expanded ? "grid-cols-2 max-w-sm" : "grid-cols-2"}`}>
+              {["approved", "rejected"].map((s) => {
+                const isActive = status === s;
+                const isApproved = s === "approved";
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setStatus(s)}
+                    className={`rounded-xl border px-4 py-3 text-sm font-bold capitalize transition-all duration-200 flex items-center justify-center gap-2 ${
+                      isActive
+                        ? isApproved
+                          ? "bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-500/20"
+                          : "bg-rose-500 border-rose-500 text-white shadow-md shadow-rose-500/20"
+                        : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50"
+                    }`}
+                  >
+                    {isApproved ? (
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    )}
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Highly Recognizable Manager Remarks */}
+          <div className="rounded-xl border-l-4 border-[#0B6E4F] bg-[#F0FBF6] p-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="grid h-7 w-7 place-items-center rounded-lg bg-[#0B6E4F] text-white">
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <label className="text-xs font-bold uppercase tracking-wide text-[#0B6E4F]" htmlFor="remarks">
+                Manager Remarks (Required)
+              </label>
+            </div>
+            <textarea
+              id="remarks"
+              rows={expanded ? 6 : 3}
+              placeholder="Provide a reason or instructions..."
+              className="w-full rounded-lg border border-[#0B6E4F]/20 bg-white px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-[#0B6E4F] focus:ring-2 focus:ring-[#0B6E4F]/20 transition-all shadow-inner"
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+            />
+          </div>
+
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+              {error}
+            </div>
+          )}
         </div>
 
-        <div className="mt-4">
-          <label className="mb-1 block text-sm font-medium text-elms-ink" htmlFor="remarks">
-            Remarks (required)
-          </label>
-          <textarea
-            id="remarks"
-            rows={3}
-            className="w-full rounded-md border border-elms-line bg-elms-surface px-3 py-2 text-sm text-elms-ink outline-none focus:border-elms-primary"
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-          />
-        </div>
-
-        {error && (
-          <p className="mt-3 rounded-md bg-[#F8E9E8] px-3 py-2 text-sm text-elms-reject">{error}</p>
-        )}
-
-        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        {/* Footer */}
+        <div className="border-t border-slate-100 bg-slate-50 px-6 py-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end shrink-0">
           <button
-            className="rounded-md border border-elms-line px-4 py-2 text-sm font-medium text-elms-ink hover:bg-elms-bg"
+            className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition"
             onClick={onClose}
             disabled={busy}
           >
             Cancel
           </button>
           <button
-            className="rounded-md bg-elms-primary px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+            className="rounded-lg bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-slate-800 disabled:opacity-50 flex items-center gap-2"
             onClick={confirm}
             disabled={busy || !remarks.trim()}
           >
-            {busy ? "Saving�" : "Confirm"}
+            {busy ? (
+              <>
+                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                </svg>
+                Saving...
+              </>
+            ) : "Confirm Decision"}
           </button>
         </div>
       </div>
     </div>
+  );
+}iv>
   );
 }
 
@@ -384,7 +460,7 @@ export default function LeaveRequests() {
         </div>
       </div>
 
-      <div className="grid gap-6 xl:gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,1fr)] items-start">
+      <div className="flex flex-col gap-6 xl:gap-8 items-stretch">
         <div className="space-y-6 xl:space-y-8">
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {TILES.map((t) => (
@@ -430,44 +506,55 @@ export default function LeaveRequests() {
             </div>
 
             {!loading && (
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left text-[14px]">
-                          <thead className="border-b border-[#E2E8F5] bg-white text-[13px] font-semibold text-slate-500">
-                            <tr>
-                              <th className="px-6 py-3.5">Employee</th>
-                              <th className="px-4 py-3.5">Leave Type</th>
-                              <th className="px-4 py-3.5">From</th>
-                              <th className="px-4 py-3.5">To</th>
-                              <th className="px-4 py-3.5">Duration</th>
-                              <th className="px-4 py-3.5">Status</th>
-                              <th className="px-6 py-3.5 text-right">Requested On</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-[#E2E8F5]">
-                            {empty ? (
-                              <tr>
-                                <td colSpan="7" className="py-8 text-center text-slate-500">
-                                  No requests found.
-                                </td>
-                              </tr>
-                            ) : (
-                              leaves.map((l) => (
-                                <tr key={l.id} className="cursor-pointer transition hover:bg-slate-50" onClick={() => setActive(l)}>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[800px] text-left text-[14px]">
+                  <thead className="border-b border-[#E2E8F5] bg-white text-[13px] font-semibold text-slate-500">
+                    <tr>
+                      <th className="px-6 py-3.5 whitespace-nowrap">Employee</th>
+                      <th className="px-4 py-3.5 whitespace-nowrap">Leave Type</th>
+                      <th className="px-4 py-3.5 whitespace-nowrap">From</th>
+                      <th className="px-4 py-3.5 whitespace-nowrap">To</th>
+                      <th className="px-4 py-3.5 whitespace-nowrap">Duration</th>
+                      <th className="px-4 py-3.5 whitespace-nowrap">Status</th>
+                      <th className="px-6 py-3.5 text-right whitespace-nowrap">Requested On</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#E2E8F5]">
+                    {empty ? (
+                      <tr>
+                        <td colSpan="7" className="py-8 text-center text-slate-500">
+                          No requests found.
+                        </td>
+                      </tr>
+                    ) : (
+                      leaves.map((l) => (
+                        <tr key={l.id} className="cursor-pointer transition hover:bg-slate-50" onClick={() => setActive(l)}>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <Avatar name={l.employee_username} />
-                              <div className="min-w-0">
+                              <div className="min-w-[120px]">
                                 <p className="truncate text-[14.5px] font-semibold text-elms-ink">
                                   {l.employee_username}
                                 </p>
                                 <p className="truncate text-[12.5px] text-slate-400">
-                                  {l.employee_username.includes("Karan") ? "DevOps Engineer" : l.employee_username.includes("Ananya") ? "Marketing Executive" : "Product Designer"}
+                                  {l.employee_username.includes("karan") ? "DevOps Engineer" 
+                                    : l.employee_username.includes("ananya") ? "Marketing Executive" 
+                                    : l.employee_username.includes("rohit") ? "Backend Developer"
+                                    : l.employee_username.includes("priya") ? "HR Manager"
+                                    : l.employee_username.includes("vikram") ? "Sales Lead"
+                                    : l.employee_username.includes("meera") ? "Content Strategist"
+                                    : l.employee_username.includes("arjun") ? "QA Engineer"
+                                    : "Product Designer"}
                                 </p>
                               </div>
                             </div>
                           </td>
                           <td className="whitespace-nowrap px-4 py-4 text-slate-600">
-                            {l.reason.includes("Sick") ? "Sick Leave" : l.reason.includes("Casual") ? "Casual Leave" : "Annual Leave"}
+                            {l.reason.toLowerCase().includes("sick") || l.reason.toLowerCase().includes("unwell") 
+                              ? "Sick Leave" 
+                              : l.reason.toLowerCase().includes("casual") || l.reason.toLowerCase().includes("personal") 
+                              ? "Casual Leave" 
+                              : "Annual Leave"}
                           </td>
                           <td className="whitespace-nowrap px-4 py-4 text-slate-600">
                             {fmt(l.start_date)}
@@ -478,7 +565,7 @@ export default function LeaveRequests() {
                           <td className="whitespace-nowrap px-4 py-4 text-slate-600">
                             {days(l.start_date, l.end_date)}
                           </td>
-                          <td className="px-4 py-4">
+                          <td className="px-4 py-4 whitespace-nowrap">
                             <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                               l.status === 'approved' ? 'bg-[#E6F8F0] text-[#0B6E4F]' :
                               l.status === 'pending' ? 'bg-[#FFF4E5] text-[#C98A1E]' :
@@ -487,7 +574,7 @@ export default function LeaveRequests() {
                               {l.status.charAt(0).toUpperCase() + l.status.slice(1)}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-right text-slate-600">
+                          <td className="whitespace-nowrap px-6 py-4 text-right text-slate-600">
                             {fmt(l.created_at || new Date(Date.now() - 5*86400000))}
                           </td>
                         </tr>
@@ -516,40 +603,6 @@ export default function LeaveRequests() {
             )}
           </section>
         </div>
-
-        <aside className="space-y-6 xl:space-y-8">
-          <section className="rounded-[20px] border border-[#E2E8F5] bg-white px-6 py-6 xl:p-7 shadow-[0_4px_24px_rgba(22,55,120,0.04)]">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[16px] font-bold text-elms-ink">Leave Balance</h2>
-              <button className="text-[13px] font-semibold text-[#1769F0] hover:underline">View All</button>
-            </div>
-            <div className="space-y-7">
-              {loading ? (
-                <div className="text-[13px] text-slate-500">Loading balances...</div>
-              ) : balances.map((b) => (
-                <div key={b.label}>
-                  <div className="flex items-center justify-between text-[13px] mb-2.5">
-                    <div className="flex items-center gap-3">
-                      <span className={`grid h-8 w-8 place-items-center rounded-lg ${b.bg} ${b.textColor}`}>
-                        <svg className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d={b.icon}></path></svg>
-                      </span>
-                      <span className="font-semibold text-slate-700">{b.label}</span>
-                    </div>
-                    <div>
-                      <span className="font-bold text-elms-ink text-[14px]">{b.used}</span>
-                      <span className="text-slate-400 font-medium"> / {b.total} days</span>
-                    </div>
-                  </div>
-                  <div className="h-1 w-full rounded-full bg-slate-100 overflow-hidden">
-                    <div className={`h-full rounded-full ${b.color}`} style={{ width: `${(b.used / b.total) * 100}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <CalendarWidget leaves={leaves} />
-        </aside>
       </div>
     </div>
 

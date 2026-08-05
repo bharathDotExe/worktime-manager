@@ -6,6 +6,7 @@ const multer = require("multer");
 function errorHandler(err, req, res, next) {
   // Full detail server-side only.
   console.error(`[error] ${req.method} ${req.originalUrl}`, err);
+  require("fs").appendFileSync("error.log", `[error] ${req.method} ${req.originalUrl} - ${err.message}\n${err.stack}\n\n`);
 
   if (err instanceof multer.MulterError) {
     const message =

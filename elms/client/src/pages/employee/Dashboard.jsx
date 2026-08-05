@@ -47,6 +47,7 @@ function LeaveDetailModal({ leave, onClose }) {
   const [docType, setDocType] = useState(null);
   const [docLoading, setDocLoading] = useState(false);
   const [docError, setDocError] = useState("");
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     if (!leave?.has_document) return;
@@ -83,24 +84,54 @@ function LeaveDetailModal({ leave, onClose }) {
 
       {/* Panel */}
       <div
-        className="relative z-10 w-full max-w-lg rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] overflow-hidden max-h-[90vh] flex flex-col"
+        className={`relative z-10 w-full rounded-2xl bg-white shadow-[0_24px_60px_rgba(0,0,0,0.18)] overflow-hidden flex flex-col transition-all duration-300 ease-out ${
+          expanded
+            ? "max-w-5xl max-h-[95vh]"
+            : "max-w-lg max-h-[90vh]"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60 shrink-0">
           <div>
             <h2 className="text-base font-bold text-slate-900">Leave Request Details</h2>
             <p className="text-xs text-slate-400 mt-0.5">Submitted {fmt(leave.created_at)}</p>
           </div>
-          <button
-            onClick={onClose}
-            className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-200/70 hover:text-slate-700 transition"
-            aria-label="Close"
-          >
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-          </button>
+          <div className="flex items-center gap-1">
+            {/* Expand / Collapse button */}
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-200/70 hover:text-slate-700 transition"
+              aria-label={expanded ? "Collapse" : "Expand"}
+              title={expanded ? "Collapse" : "Expand"}
+            >
+              {expanded ? (
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="4 14 10 14 10 20"/>
+                  <polyline points="20 10 14 10 14 4"/>
+                  <line x1="14" y1="10" x2="21" y2="3"/>
+                  <line x1="3" y1="21" x2="10" y2="14"/>
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 3 21 3 21 9"/>
+                  <polyline points="9 21 3 21 3 15"/>
+                  <line x1="21" y1="3" x2="14" y2="10"/>
+                  <line x1="3" y1="21" x2="10" y2="14"/>
+                </svg>
+              )}
+            </button>
+            {/* Close button */}
+            <button
+              onClick={onClose}
+              className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-200/70 hover:text-slate-700 transition"
+              aria-label="Close"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Body — scrollable */}
@@ -111,7 +142,7 @@ function LeaveDetailModal({ leave, onClose }) {
           </span>
 
           {/* Info grid */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className={`grid gap-3 ${expanded ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2"}`}>
             <div className="rounded-xl bg-slate-50 px-4 py-3">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">From</p>
               <p className="mt-1 text-sm font-semibold text-slate-800">{fmt(leave.start_date)}</p>
@@ -128,11 +159,18 @@ function LeaveDetailModal({ leave, onClose }) {
             <p className="text-sm text-slate-700 leading-relaxed">{leave.reason}</p>
           </div>
 
-          {/* Manager remarks */}
+          {/* Manager remarks — prominent design */}
           {leave.manager_remarks && (
-            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Manager Remarks</p>
-              <p className="text-sm text-slate-700">{leave.manager_remarks}</p>
+            <div className="rounded-xl border-l-4 border-[#0B6E4F] bg-[#F0FBF6] px-5 py-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="grid h-7 w-7 place-items-center rounded-lg bg-[#0B6E4F] text-white">
+                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </div>
+                <p className="text-[12px] font-bold uppercase tracking-wide text-[#0B6E4F]">Manager Remarks</p>
+              </div>
+              <p className="text-sm font-medium text-slate-800 leading-relaxed pl-9">{leave.manager_remarks}</p>
             </div>
           )}
 
@@ -154,13 +192,13 @@ function LeaveDetailModal({ leave, onClose }) {
                   <img
                     src={docUrl}
                     alt={leave.document_name || "Attachment"}
-                    className="w-full rounded-xl border border-slate-200 object-contain max-h-64"
+                    className={`w-full rounded-xl border border-slate-200 object-contain ${expanded ? "max-h-[60vh]" : "max-h-64"}`}
                   />
                 ) : docType === "application/pdf" ? (
                   <iframe
                     src={docUrl}
                     title={leave.document_name || "Document"}
-                    className="w-full h-72 rounded-xl border border-slate-200"
+                    className={`w-full rounded-xl border border-slate-200 ${expanded ? "h-[60vh]" : "h-72"}`}
                   />
                 ) : (
                   <a
