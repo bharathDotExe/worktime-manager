@@ -158,6 +158,7 @@ export default function Layout({ children, links = [] }) {
         </div>
       )}
 
+      <div className="flex flex-col flex-1 min-w-0 relative">
         {/* Mobile top bar */}
         <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-[#FAFAFA]/95 px-4 py-3 backdrop-blur-sm lg:hidden">
           <button
