@@ -218,7 +218,7 @@ export default function Landing() {
               className="absolute inset-0"
               style={{
                 background:
-                  "linear-gradient(90deg, rgba(246, 247, 249, 0.98) 0%, rgba(246, 247, 249, 0.94) 48%, rgba(246, 247, 249, 0.76) 66%, rgba(246, 247, 249, 0.18) 100%)",
+                  "linear-gradient(90deg, rgba(246, 247, 249, 0.85) 0%, rgba(246, 247, 249, 0.75) 48%, rgba(246, 247, 249, 0.50) 66%, rgba(246, 247, 249, 0.05) 100%)",
               }}
             />
             {/* Small screens: solid fallback for guaranteed contrast */}
@@ -226,7 +226,7 @@ export default function Landing() {
           </div>
 
 
-          <div className="relative z-10 mx-auto flex min-h-[480px] w-full max-w-[1120px] flex-col justify-center px-6 py-16 sm:min-h-[540px] sm:py-24">
+          <div className="relative z-10 mx-auto flex min-h-[calc(100vh-65px)] w-full max-w-[1120px] flex-col justify-center px-6 py-16 sm:py-24">
           <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-elms-muted">
             Role-based access · JWT auth · Audit-logged
           </p>

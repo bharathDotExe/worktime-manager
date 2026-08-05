@@ -21,51 +21,110 @@ function days(a, b) {
   return `${n} day${n === 1 ? "" : "s"}`;
 }
 
-function MiniCalendar({ leaves }) {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
+function CalendarWidget({ leaves }) {
+  const [date, setDate] = useState(new Date());
+
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const requestDays = new Set(
-    leaves.flatMap((leave) => [leave.start_date, leave.end_date])
-      .filter(Boolean)
-      .map((date) => new Date(date).getDate()),
-  );
-  const cells = Array.from({ length: firstDay + daysInMonth }, (_, index) =>
-    index < firstDay ? null : index - firstDay + 1,
-  );
+  const firstDayOfMonth = new Date(year, month, 1).getDay();
+  const prevMonthDays = new Date(year, month, 0).getDate();
+  
+  const days = [];
+  
+  for (let i = firstDayOfMonth - 1; i >= 0; i--) {
+    days.push({ day: prevMonthDays - i, isCurrentMonth: false, monthOffset: -1 });
+  }
+  
+  const today = new Date();
+  for (let i = 1; i <= daysInMonth; i++) {
+    days.push({ day: i, isCurrentMonth: true, monthOffset: 0 });
+  }
+  
+  const remainingCells = 42 - days.length;
+  for (let i = 1; i <= remainingCells; i++) {
+    days.push({ day: i, isCurrentMonth: false, monthOffset: 1 });
+  }
+
+  const leaveMap = {}; 
+  
+  leaves.forEach(leave => {
+    if (!leave.start_date || !leave.end_date) return;
+    
+    let current = new Date(leave.start_date);
+    const end = new Date(leave.end_date);
+    current.setHours(0,0,0,0);
+    end.setHours(0,0,0,0);
+    
+    while (current <= end) {
+      const dateString = `${current.getFullYear()}-${current.getMonth()}-${current.getDate()}`;
+      if (!leaveMap[dateString] || leave.status === 'pending') {
+         leaveMap[dateString] = leave.status; 
+      }
+      current.setDate(current.getDate() + 1);
+    }
+  });
+
+  const nextMonth = () => setDate(new Date(year, month + 1, 1));
+  const prevMonth = () => setDate(new Date(year, month - 1, 1));
 
   return (
-    <section className="rounded-xl border border-[#E2E8F5] bg-elms-surface p-5 shadow-[0_8px_24px_rgba(22,55,120,0.04)]">
-      <div className="flex items-center justify-between">
-        <h2 className="font-display text-base font-bold text-elms-ink">Calendar</h2>
-        <span className="text-sm font-semibold text-[#1769F0]">
-          {today.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+    <section className="rounded-[20px] border border-[#E2E8F5] bg-white px-6 py-6 xl:p-7 shadow-[0_4px_24px_rgba(22,55,120,0.04)]">
+      <h2 className="text-[15px] font-bold text-elms-ink mb-4">Calendar</h2>
+      <div className="flex items-center justify-between mb-4 px-2">
+        <button onClick={prevMonth} className="text-slate-400 hover:text-slate-600 transition-colors">&lt;</button>
+        <span className="text-[14px] font-semibold text-elms-ink">
+          {date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
         </span>
+        <button onClick={nextMonth} className="text-slate-400 hover:text-slate-600 transition-colors">&gt;</button>
       </div>
-      <div className="mt-4 grid grid-cols-7 gap-y-2 text-center text-[11px]">
-        {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
-          <span key={`${day}-${index}`} className="font-semibold text-elms-muted">{day}</span>
-        ))}
-        {cells.map((day, index) => (
-          <span
-            key={day ? `day-${day}` : `blank-${index}`}
-            className={`mx-auto grid h-7 w-7 place-items-center rounded-full text-xs ${
-              day === today.getDate()
-                ? "bg-[#1769F0] font-bold text-white"
-                : requestDays.has(day)
-                  ? "bg-[#E7F8EF] font-semibold text-[#14804A]"
-                  : "text-elms-ink"
-            }`}
-          >
-            {day || ""}
-          </span>
+      
+      <div className="grid grid-cols-7 text-center mb-2">
+        {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => (
+          <div key={day} className="text-[10px] font-bold text-slate-400">{day}</div>
         ))}
       </div>
-      <div className="mt-4 flex items-center gap-3 text-xs text-elms-muted">
-        <span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-[#14804A]" /> Leave date</span>
-        <span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-[#1769F0]" /> Today</span>
+      
+      <div className="grid grid-cols-7 gap-y-2 text-center text-[13px] font-medium">
+        {days.map((d, i) => {
+          let cellDate = new Date(year, month + d.monthOffset, d.day);
+          const isToday = cellDate.getDate() === today.getDate() && cellDate.getMonth() === today.getMonth() && cellDate.getFullYear() === today.getFullYear();
+          const dateString = `${cellDate.getFullYear()}-${cellDate.getMonth()}-${cellDate.getDate()}`;
+          const leaveStatus = leaveMap[dateString];
+          
+          let containerClass = "py-1.5 relative mx-1 ";
+          let textClass = d.isCurrentMonth ? "text-slate-700" : "text-slate-300";
+          
+          if (isToday) {
+            containerClass += "bg-[#F4F7FF] rounded-full ";
+            textClass = "text-[#1769F0]";
+          }
+          
+          return (
+            <div key={i} className={`${containerClass} ${textClass}`}>
+              {d.day}
+              {leaveStatus === 'approved' && !isToday && (
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#0B6E4F]"></span>
+              )}
+              {leaveStatus === 'pending' && !isToday && (
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#C98A1E]"></span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center justify-center gap-4 mt-6 text-[11px] font-medium text-slate-500">
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-[#0B6E4F]"></span> Approved
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-[#C98A1E]"></span> Pending
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-[#1769F0]"></span> Today
+        </div>
       </div>
     </section>
   );
@@ -133,8 +192,28 @@ function ReviewModal({ leave, onClose, onDone }) {
       <div className="w-full max-w-md rounded-xl border border-elms-line bg-elms-surface p-4 sm:p-6">
         <h2 className="font-display text-lg font-bold text-elms-ink">Review request #{leave.id}</h2>
         <p className="mt-1 text-sm text-elms-muted">
-          {leave.employee_username} � {fmt(leave.start_date)} ? {fmt(leave.end_date)}
+          {leave.employee_username} • {fmt(leave.start_date)} — {fmt(leave.end_date)}
         </p>
+
+        <div className="mt-4 rounded-md border border-elms-line bg-slate-50 p-3 text-sm text-slate-700">
+          <p className="mb-1 font-semibold text-elms-ink">Reason</p>
+          <p>{leave.reason}</p>
+        </div>
+
+        {leave.has_document && (
+          <div className="mt-3">
+             <button
+               type="button"
+               onClick={() => openDocument(leave.id)}
+               className="flex items-center gap-2 rounded-md border border-elms-line bg-white px-3 py-1.5 text-sm font-medium text-[#1769F0] transition hover:bg-[#F4F7FF]"
+             >
+               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+               </svg>
+               View Attachment
+             </button>
+          </div>
+        )}
 
         <div className="mt-4">
           <span className="mb-1 block text-sm font-medium text-elms-ink">Decision</span>
@@ -229,6 +308,7 @@ export default function LeaveRequests() {
   const [filter, setFilter] = useState("all");
   const [leaves, setLeaves] = useState([]);
   const [summary, setSummary] = useState([]);
+  const [balances, setBalances] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [active, setActive] = useState(null);
@@ -243,12 +323,16 @@ export default function LeaveRequests() {
         params: filter === "all" ? {} : { status: filter },
       });
       const summaryRequest = filter === "all" ? visibleRequest : api.get("/leaves");
-      const [{ data: visibleData }, { data: summaryData }] = await Promise.all([
+      const balancesRequest = api.get("/leaves/balances");
+      
+      const [{ data: visibleData }, { data: summaryData }, { data: balancesData }] = await Promise.all([
         visibleRequest,
         summaryRequest,
+        balancesRequest,
       ]);
       setLeaves(visibleData.leaves || []);
       setSummary(summaryData.leaves || []);
+      setBalances(balancesData.balances || []);
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -305,7 +389,7 @@ export default function LeaveRequests() {
                 </span>
                 <div className="min-w-0">
                   <p className="text-[20px] xl:text-[22px] font-bold leading-none text-elms-ink">
-                    {loading ? "..." : (t.key === 'balance' ? 24 : counts[t.key])}
+                    {loading ? "..." : (t.key === 'balance' ? (balances.find(b => b.id === 'annual')?.total - balances.find(b => b.id === 'annual')?.used || 24) : counts[t.key])}
                   </p>
                   <p className="mt-1.5 text-[12.5px] xl:text-[13px] font-medium text-slate-700">{t.label}</p>
                   <p className="mt-0.5 text-[11px] text-slate-400">{t.sub}</p>
@@ -327,29 +411,29 @@ export default function LeaveRequests() {
             </div>
 
             {!loading && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-[14px]">
-                  <thead className="border-b border-[#E2E8F5] bg-white text-[13px] font-semibold text-slate-500">
-                    <tr>
-                      <th className="px-6 py-3.5">Employee</th>
-                      <th className="px-4 py-3.5">Leave Type</th>
-                      <th className="px-4 py-3.5">From</th>
-                      <th className="px-4 py-3.5">To</th>
-                      <th className="px-4 py-3.5">Duration</th>
-                      <th className="px-4 py-3.5">Status</th>
-                      <th className="px-6 py-3.5 text-right">Requested On</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E2E8F5]">
-                    {empty ? (
-                      <tr>
-                        <td colSpan="7" className="py-8 text-center text-slate-500">
-                          No requests found.
-                        </td>
-                      </tr>
-                    ) : (
-                      leaves.map((l) => (
-                        <tr key={l.id} className="transition hover:bg-slate-50/50">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-[14px]">
+                          <thead className="border-b border-[#E2E8F5] bg-white text-[13px] font-semibold text-slate-500">
+                            <tr>
+                              <th className="px-6 py-3.5">Employee</th>
+                              <th className="px-4 py-3.5">Leave Type</th>
+                              <th className="px-4 py-3.5">From</th>
+                              <th className="px-4 py-3.5">To</th>
+                              <th className="px-4 py-3.5">Duration</th>
+                              <th className="px-4 py-3.5">Status</th>
+                              <th className="px-6 py-3.5 text-right">Requested On</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[#E2E8F5]">
+                            {empty ? (
+                              <tr>
+                                <td colSpan="7" className="py-8 text-center text-slate-500">
+                                  No requests found.
+                                </td>
+                              </tr>
+                            ) : (
+                              leaves.map((l) => (
+                                <tr key={l.id} className="cursor-pointer transition hover:bg-slate-50" onClick={() => setActive(l)}>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <Avatar name={l.employee_username} />
@@ -421,12 +505,9 @@ export default function LeaveRequests() {
               <button className="text-[13px] font-semibold text-[#1769F0] hover:underline">View All</button>
             </div>
             <div className="space-y-7">
-              {[
-                { label: "Annual Leave", used: 24, total: 30, color: "bg-[#0B6E4F]", textColor: "text-[#0B6E4F]", bg: "bg-[#E6F8F0]", icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
-                { label: "Casual Leave", used: 12, total: 15, color: "bg-[#2E83F9]", textColor: "text-[#2E83F9]", bg: "bg-[#F4F7FF]", icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" },
-                { label: "Sick Leave", used: 8, total: 15, color: "bg-[#DC2626]", textColor: "text-[#DC2626]", bg: "bg-[#FEF2F2]", icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" },
-                { label: "Comp Off", used: 5, total: 10, color: "bg-[#9333EA]", textColor: "text-[#9333EA]", bg: "bg-[#F3E8FF]", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
-              ].map((b) => (
+              {loading ? (
+                <div className="text-[13px] text-slate-500">Loading balances...</div>
+              ) : balances.map((b) => (
                 <div key={b.label}>
                   <div className="flex items-center justify-between text-[13px] mb-2.5">
                     <div className="flex items-center gap-3">
@@ -448,74 +529,7 @@ export default function LeaveRequests() {
             </div>
           </section>
 
-          <section className="rounded-[20px] border border-[#E2E8F5] bg-white px-6 py-6 xl:p-7 shadow-[0_4px_24px_rgba(22,55,120,0.04)]">
-            <h2 className="text-[15px] font-bold text-elms-ink mb-4">Calendar</h2>
-            <div className="flex items-center justify-between mb-4 px-2">
-              <button className="text-slate-400 hover:text-slate-600">&lt;</button>
-              <span className="text-[14px] font-semibold text-elms-ink">May 2025</span>
-              <button className="text-slate-400 hover:text-slate-600">&gt;</button>
-            </div>
-            
-            <div className="grid grid-cols-7 text-center mb-2">
-              {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => (
-                <div key={day} className="text-[10px] font-bold text-slate-400">{day}</div>
-              ))}
-            </div>
-            
-            <div className="grid grid-cols-7 gap-y-2 text-center text-[13px] font-medium">
-              <div className="text-slate-300 py-1.5">27</div>
-              <div className="text-slate-300 py-1.5">28</div>
-              <div className="text-slate-300 py-1.5">29</div>
-              <div className="text-slate-300 py-1.5">30</div>
-              <div className="text-slate-700 py-1.5">1</div>
-              <div className="text-slate-700 py-1.5">2</div>
-              <div className="text-slate-700 py-1.5">3</div>
-              
-              <div className="text-slate-700 py-1.5">4</div>
-              <div className="text-slate-700 py-1.5">5</div>
-              <div className="text-slate-700 py-1.5">6</div>
-              <div className="text-slate-700 py-1.5">7</div>
-              <div className="text-slate-700 py-1.5">8</div>
-              <div className="text-slate-700 py-1.5">9</div>
-              <div className="text-slate-700 py-1.5">10</div>
-              
-              <div className="text-slate-700 py-1.5">11</div>
-              <div className="text-slate-700 py-1.5">12</div>
-              <div className="text-slate-700 py-1.5">13</div>
-              <div className="text-slate-700 py-1.5">14</div>
-              <div className="text-slate-700 py-1.5 relative">15<span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#0B6E4F]"></span></div>
-              <div className="text-[#1769F0] py-1.5 bg-[#F4F7FF] rounded-full mx-1">16</div>
-              <div className="text-slate-700 py-1.5">17</div>
-              
-              <div className="text-slate-700 py-1.5">18</div>
-              <div className="text-slate-700 py-1.5">19</div>
-              <div className="text-slate-700 py-1.5 relative bg-[#E6F8F0] rounded-full mx-1 text-[#0B6E4F]">20</div>
-              <div className="text-slate-700 py-1.5">21</div>
-              <div className="text-slate-700 py-1.5">22</div>
-              <div className="text-slate-700 py-1.5">23</div>
-              <div className="text-slate-700 py-1.5">24</div>
-              
-              <div className="text-slate-700 py-1.5">25</div>
-              <div className="text-slate-700 py-1.5">26</div>
-              <div className="text-slate-700 py-1.5">27</div>
-              <div className="text-slate-700 py-1.5">28</div>
-              <div className="text-slate-700 py-1.5">29</div>
-              <div className="text-slate-700 py-1.5 relative">30<span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#C98A1E]"></span></div>
-              <div className="text-slate-700 py-1.5">31</div>
-            </div>
-
-            <div className="flex items-center justify-center gap-4 mt-6 text-[11px] font-medium text-slate-500">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#0B6E4F]"></span> Approved
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#C98A1E]"></span> Pending
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#1769F0]"></span> Today
-              </div>
-            </div>
-          </section>
+          <CalendarWidget leaves={leaves} />
         </aside>
       </div>
     </div>

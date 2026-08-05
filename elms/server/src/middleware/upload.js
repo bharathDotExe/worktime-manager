@@ -6,23 +6,13 @@ const crypto = require("crypto");
 const multer = require("multer");
 const env = require("../config/env");
 
-fs.mkdirSync(env.uploadDir, { recursive: true });
-
 const ALLOWED = new Map([
   ["application/pdf", ".pdf"],
   ["image/png", ".png"],
   ["image/jpeg", ".jpg"],
 ]);
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, env.uploadDir),
-  filename: (req, file, cb) => {
-    // Never reuse the client filename: it can contain ../, null bytes, or a
-    // second extension. We derive the extension from the whitelisted MIME type.
-    const ext = ALLOWED.get(file.mimetype) || "";
-    cb(null, `${crypto.randomUUID()}${ext}`);
-  },
-});
+const storage = multer.memoryStorage();
 
 function fileFilter(req, file, cb) {
   if (!ALLOWED.has(file.mimetype)) {
@@ -39,4 +29,4 @@ const upload = multer({
   limits: { fileSize: env.maxUploadMb * 1024 * 1024, files: 1 },
 });
 
-module.exports = { upload, ALLOWED_MIME: ALLOWED };
+module.exports = { upload, ALLOWED_MIME: ALLOWED, extForMime: (mime) => ALLOWED.get(mime) || "" };

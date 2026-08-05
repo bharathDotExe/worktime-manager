@@ -14,7 +14,8 @@ router.use(authenticate);
 // --- Employee ---
 router.post("/", requireRole("employee"), upload.single("document"), controller.create);
 router.get("/mine", requireRole("employee"), controller.listMine);
-router.get("/notifications", requireRole("employee"), controller.notifications);
+router.get("/balances", controller.balances);
+router.get("/notifications", controller.notifications);
 router.post("/notifications/ack", requireRole("employee"), controller.ackNotifications);
 
 // --- Shared (manager OR owning employee, checked inside the controller) ---

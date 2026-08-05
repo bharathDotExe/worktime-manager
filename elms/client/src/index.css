@@ -13,13 +13,13 @@
     @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .btn-primary {
-    @apply btn bg-accent-500 text-white hover:bg-accent-600;
+    @apply btn bg-elms-primary text-white hover:opacity-90;
   }
   .btn-ghost {
     @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-100;
   }
   .input {
-    @apply w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-100;
+    @apply w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-elms-primary focus:ring-2 focus:ring-[#E7F2EC];
   }
   .label {
     @apply mb-1 block text-sm font-medium text-slate-700;

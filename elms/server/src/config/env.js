@@ -24,7 +24,8 @@ const env = {
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "2h",
   bcryptRounds: Math.max(12, Number(process.env.BCRYPT_ROUNDS || 12)),
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB || 5),
-  uploadDir: path.resolve(__dirname, "../../", process.env.UPLOAD_DIR || "uploads"),
+  supabaseUrl: process.env.SUPABASE_URL,
+  supabaseKey: process.env.SUPABASE_KEY,
 };
 
 module.exports = env;
