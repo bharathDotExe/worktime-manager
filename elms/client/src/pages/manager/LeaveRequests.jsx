@@ -531,7 +531,7 @@ export default function LeaveRequests() {
                   <img
                     src={t.img}
                     alt={t.label}
-                    className="h-[26px] w-[26px] object-contain"
+                    className="h-[44px] w-[44px] object-contain"
                     aria-hidden="true"
                   />
                 </span>
