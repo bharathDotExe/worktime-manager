@@ -139,7 +139,10 @@ function Avatar({ name = "", avatarUrl = null }) {
     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#E7F2EC] text-xs font-bold uppercase text-elms-primary">
       {name.slice(0, 2)}
     </span>
-  );function ReviewModal({ leave, onClose, onDone }) {
+  );
+}
+
+function ReviewModal({ leave, onClose, onDone }) {
   const [status, setStatus] = useState("approved");
   const [remarks, setRemarks] = useState("");
   const [busy, setBusy] = useState(false);
@@ -345,8 +348,6 @@ function Avatar({ name = "", avatarUrl = null }) {
         </div>
       </div>
     </div>
-  );
-}iv>
   );
 }
 
