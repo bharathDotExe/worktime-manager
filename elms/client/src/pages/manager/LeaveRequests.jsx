@@ -414,29 +414,29 @@ const TILES = [
     key: "total",
     label: "Total Requests",
     sub: "This Month",
-    tone: "bg-[#F4F7FF] text-[#2E83F9]",
-    d: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+    tone: "bg-[#F4F7FF]",
+    img: "/total_requests_icon.png",
   },
   {
     key: "approved",
     label: "Approved",
     sub: "This Month",
-    tone: "bg-[#E6F8F0] text-[#0B6E4F]",
-    d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+    tone: "bg-[#E6F8F0]",
+    img: "/approved_icon.png",
   },
   {
     key: "pending",
     label: "Pending",
     sub: "This Month",
-    tone: "bg-[#FFF4E5] text-[#C98A1E]",
-    d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+    tone: "bg-[#FFF4E5]",
+    img: "/pending_icon.png",
   },
   {
     key: "balance",
     label: "Available Days",
     sub: "Balance",
-    tone: "bg-[#F3E8FF] text-[#9333EA]",
-    d: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+    tone: "bg-[#F3E8FF]",
+    img: "/available_days_icon.png",
   },
 ];
 
@@ -528,18 +528,12 @@ export default function LeaveRequests() {
                 className="flex items-center gap-3 xl:gap-4 rounded-[16px] border border-[#E2E8F5] bg-white p-4 shadow-[0_2px_12px_rgba(22,55,120,0.03)]"
               >
                 <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-[12px] ${t.tone}`}>
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-[22px] w-[22px]"
+                  <img
+                    src={t.img}
+                    alt={t.label}
+                    className="h-[26px] w-[26px] object-contain"
                     aria-hidden="true"
-                  >
-                    <path d={t.d} />
-                  </svg>
+                  />
                 </span>
                 <div className="min-w-0">
                   <p className="text-[20px] xl:text-[22px] font-bold leading-none text-elms-ink">

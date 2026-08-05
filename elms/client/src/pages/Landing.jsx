@@ -168,24 +168,7 @@ export default function Landing() {
       <header className="sticky top-0 z-30 border-b border-elms-line bg-elms-bg/95 backdrop-blur-[2px]">
         <div className="mx-auto flex w-full max-w-[1120px] items-center justify-between px-6 py-3">
           <a href="#top" className="flex items-center gap-2 focus-ink">
-            <svg viewBox="0 0 20 20" className="h-5 w-5" aria-hidden="true">
-              <rect
-                x="2.5"
-                y="7.5"
-                width="15"
-                height="10"
-                rx="1.5"
-                fill="none"
-                stroke="var(--elms-primary)"
-                strokeWidth="1.5"
-              />
-              <path
-                d="M6.5 7.5V5.5a3.5 3.5 0 017 0v2"
-                fill="none"
-                stroke="var(--elms-primary)"
-                strokeWidth="1.5"
-              />
-            </svg>
+            <img src="/elms_icon.png" alt="ELMS Logo" className="h-5 w-5 object-contain" />
             <span className="font-mono text-sm font-semibold tracking-tight">ELMS</span>
           </a>
           <nav className="hidden items-center gap-7 md:flex">

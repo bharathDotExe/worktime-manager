@@ -80,10 +80,14 @@ async function createLeaveRequest(employeeId, managerId, template) {
   const startDate = dateOffset(startOffset);
   const endDate = dateOffset(startOffset + duration - 1);
 
+  const isMedical = reason.toLowerCase().includes("medical") || reason.toLowerCase().includes("unwell") || reason.toLowerCase().includes("eye checkup");
+  const document_url = isMedical ? "medical-certificate.pdf" : null;
+  const document_name = isMedical ? "Medical Certificate.pdf" : null;
+
   const { rows } = await pool.query(
     `INSERT INTO leave_requests
-       (employee_id, reason, start_date, end_date, status, manager_remarks, reviewed_by, notified)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, true)
+       (employee_id, reason, start_date, end_date, status, manager_remarks, reviewed_by, notified, document_url, document_name)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, true, $8, $9)
      RETURNING id`,
     [
       employeeId,
@@ -93,6 +97,8 @@ async function createLeaveRequest(employeeId, managerId, template) {
       status,
       remarks,
       status !== "pending" ? managerId : null,
+      document_url,
+      document_name
     ],
   );
   const tag = { approved: "✅", pending: "⏳", rejected: "❌" }[status];
