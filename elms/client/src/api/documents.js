@@ -11,3 +11,13 @@ export async function openDocument(leaveId) {
   window.open(url, "_blank", "noopener,noreferrer");
   setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
+
+/**
+ * Like openDocument but returns the blob URL (and its mime type) for inline
+ * preview inside a modal rather than opening a new tab.
+ */
+export async function fetchDocumentUrl(leaveId) {
+  const res = await api.get(`/leaves/${leaveId}/document`, { responseType: "blob" });
+  const url = URL.createObjectURL(res.data);
+  return { url, type: res.data.type };
+}

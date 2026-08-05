@@ -154,6 +154,22 @@ export default function Layout({ children, links = [] }) {
               </button>
             </div>
             {nav}
+            <div className="mt-auto overflow-visible rounded-[20px] bg-[#0E8B65] p-5 pl-[85px] text-white relative shadow-[0_4px_20px_rgba(0,0,0,0.15)] min-h-[60px] flex items-center">
+              <img
+                src="/indoor_plant.png"
+                alt="Decorative Plant"
+                className="absolute -bottom-4 -left-6 w-[150px] h-[180px] object-cover object-bottom drop-shadow-[0_8px_12px_rgba(0,0,0,0.25)] mix-blend-normal pointer-events-none"
+              />
+              <div className="relative z-10 w-full">
+                <button className="flex w-full items-center justify-between text-[13px] font-semibold text-white transition-opacity hover:opacity-80">
+                  Visit Help Center
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <path d="M3.33331 8H12.6666" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M8 3.33337L12.6667 8.00004L8 12.6667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
           </aside>
         </div>
       )}
