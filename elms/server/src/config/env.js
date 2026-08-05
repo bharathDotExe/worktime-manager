@@ -21,8 +21,8 @@ const env = {
   pgSsl: (process.env.PGSSL || "true").toLowerCase() !== "false",
   // Never hardcode a fallback secret: a missing secret must crash at boot.
   jwtSecret: required("JWT_SECRET"),
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "2h",
-  bcryptRounds: Math.max(12, Number(process.env.BCRYPT_ROUNDS || 12)),
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "8h",
+  bcryptRounds: Math.max(10, Number(process.env.BCRYPT_ROUNDS || 10)),
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB || 5),
   supabaseUrl: process.env.SUPABASE_URL,
   supabaseKey: process.env.SUPABASE_KEY,

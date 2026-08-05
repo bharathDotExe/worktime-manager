@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Layout from "../../components/Layout.jsx";
 import api, { errorMessage } from "../../api/client";
 import { MANAGER_LINKS } from "../../nav";
+import { cacheGet, cacheSet } from "../../api/cache";
 
 export default function Employees() {
   const [employees, setEmployees] = useState([]);
@@ -9,9 +10,18 @@ export default function Employees() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const cached = cacheGet("employees");
+    if (cached) {
+      setEmployees(cached);
+      setLoading(false);
+    }
     api
       .get("/employees")
-      .then(({ data }) => setEmployees(data.employees || []))
+      .then(({ data }) => {
+        const list = data.employees || [];
+        cacheSet("employees", list, 60_000);
+        setEmployees(list);
+      })
       .catch((err) => setError(errorMessage(err)))
       .finally(() => setLoading(false));
   }, []);

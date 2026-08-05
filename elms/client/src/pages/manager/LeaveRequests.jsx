@@ -6,6 +6,7 @@ import { MANAGER_LINKS } from "../../nav";
 import { openDocument } from "../../api/documents";
 import { useToast } from "../../components/Toast.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
+import { cacheGet, cacheSet, cacheInvalidate } from "../../api/cache";
 
 const FILTERS = ["all", "pending", "approved", "rejected"];
 
@@ -316,8 +317,20 @@ export default function LeaveRequests() {
   const { user } = useAuth();
 
   const load = useCallback(async () => {
-    setLoading(true);
     setError("");
+
+    // Hydrate from cache instantly (skip the loading spinner)
+    const cacheKey = `mgr_leaves_${filter}`;
+    const cached = cacheGet(cacheKey);
+    if (cached) {
+      setLeaves(cached.leaves);
+      setSummary(cached.summary);
+      setBalances(cached.balances);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+
     try {
       const visibleRequest = api.get("/leaves", {
         params: filter === "all" ? {} : { status: filter },
@@ -330,9 +343,15 @@ export default function LeaveRequests() {
         summaryRequest,
         balancesRequest,
       ]);
-      setLeaves(visibleData.leaves || []);
-      setSummary(summaryData.leaves || []);
-      setBalances(balancesData.balances || []);
+      const result = {
+        leaves: visibleData.leaves || [],
+        summary: summaryData.leaves || [],
+        balances: balancesData.balances || [],
+      };
+      cacheSet(cacheKey, result, 30_000); // 30s TTL for manager data
+      setLeaves(result.leaves);
+      setSummary(result.summary);
+      setBalances(result.balances);
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -540,6 +559,7 @@ export default function LeaveRequests() {
           onClose={() => setActive(null)}
           onDone={(status) => {
             setActive(null);
+            cacheInvalidate("mgr_*");
             pushToast(
               `Request #${active.id} ${status}`,
               status === "approved" ? "success" : "error",

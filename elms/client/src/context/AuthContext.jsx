@@ -1,21 +1,27 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api, { getToken, setToken, setUnauthorizedHandler } from "../api/client";
+import api, { getToken, setToken, setCachedUser, getCachedUser, setUnauthorizedHandler } from "../api/client";
+import { cacheClear } from "../api/cache";
 import { useToast } from "../components/Toast.jsx";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  // Hydrate user instantly from localStorage cache — no loading spinner needed
+  // if the user was previously logged in. We still verify with /me in background.
+  const [user, setUser] = useState(() => getCachedUser());
   const [token, setTokenState] = useState(getToken());
-  const [loading, setLoading] = useState(Boolean(getToken()));
+  // If we have a cached user, skip the loading state entirely — show UI immediately
+  const [loading, setLoading] = useState(Boolean(getToken()) && !getCachedUser());
   const navigate = useNavigate();
   const { pushToast } = useToast();
 
   const logout = useCallback(() => {
     setToken(null);
+    setCachedUser(null);
     setTokenState(null);
     setUser(null);
+    cacheClear();
     navigate("/login", { replace: true });
   }, [navigate]);
 
@@ -23,11 +29,14 @@ export function AuthProvider({ children }) {
     setUnauthorizedHandler(() => {
       setTokenState(null);
       setUser(null);
+      setCachedUser(null);
+      cacheClear();
       navigate("/login", { replace: true });
     });
   }, [navigate]);
 
-  // Restore the session from sessionStorage on reload.
+  // Verify the cached session with the server in the background.
+  // If the token is stale, clear everything; otherwise refresh the user data silently.
   useEffect(() => {
     if (!getToken()) {
       setLoading(false);
@@ -35,8 +44,14 @@ export function AuthProvider({ children }) {
     }
     api
       .get("/auth/me")
-      .then((res) => setUser(res.data))
-      .catch(() => setUser(null))
+      .then((res) => {
+        setUser(res.data);
+        setCachedUser(res.data);
+      })
+      .catch(() => {
+        setUser(null);
+        setCachedUser(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -65,22 +80,27 @@ export function AuthProvider({ children }) {
     return () => clearInterval(id);
   }, [user, syncNotifications]);
 
+  // Login — use the response data directly instead of making a second /me call.
   const login = useCallback(async (username, password) => {
     const { data } = await api.post("/auth/login", { username, password });
     setToken(data.token);
     setTokenState(data.token);
-    const me = await api.get("/auth/me");
-    setUser(me.data);
-    return me.data;
+    // The server already returns { token, role, username } — use it directly.
+    const userData = { id: data.id, username: data.username, role: data.role };
+    setUser(userData);
+    setCachedUser(userData);
+    return userData;
   }, []);
 
+  // Register — same optimisation, use response data directly.
   const register = useCallback(async (username, password) => {
     const { data } = await api.post("/auth/register", { username, password });
     setToken(data.token);
     setTokenState(data.token);
-    const me = await api.get("/auth/me");
-    setUser(me.data);
-    return me.data;
+    const userData = { id: data.id, username: data.username, role: data.role };
+    setUser(userData);
+    setCachedUser(userData);
+    return userData;
   }, []);
 
   const value = useMemo(

@@ -4,9 +4,14 @@ import StatusBadge from "../../components/StatusBadge.jsx";
 import api, { errorMessage } from "../../api/client";
 import { EMPLOYEE_LINKS } from "../../nav";
 import { openDocument } from "../../api/documents";
+import { cacheGet, cacheSet } from "../../api/cache";
 
 function fmt(date) {
   return date ? new Date(date).toLocaleDateString() : "—";
+}
+
+function sortLeaves(raw) {
+  return [...raw].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 }
 
 export default function LeaveHistory() {
@@ -15,16 +20,20 @@ export default function LeaveHistory() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Instant hydrate from cache
+    const cached = cacheGet("leaves_mine");
+    if (cached) {
+      setLeaves(sortLeaves(cached));
+      setLoading(false);
+    }
+
     api
       .get("/leaves/mine")
-      // Server already orders newest-first; sort defensively.
-      .then(({ data }) =>
-        setLeaves(
-          [...(data.leaves || [])].sort(
-            (a, b) => new Date(b.created_at) - new Date(a.created_at),
-          ),
-        ),
-      )
+      .then(({ data }) => {
+        const raw = data.leaves || [];
+        cacheSet("leaves_mine", raw, 60_000);
+        setLeaves(sortLeaves(raw));
+      })
       .catch((err) => setError(errorMessage(err)))
       .finally(() => setLoading(false));
   }, []);

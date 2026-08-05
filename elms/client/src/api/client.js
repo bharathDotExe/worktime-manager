@@ -1,21 +1,44 @@
 import axios from "axios";
+import { cacheClear } from "./cache";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
 });
 
-// Token lives in memory (module scope) and mirrors sessionStorage.
-let accessToken = sessionStorage.getItem("elms_token") || null;
+// Token lives in memory (module scope) and mirrors localStorage so it
+// persists across tabs and page refreshes (sessionStorage was lost on
+// every new tab, forcing a full re-login).
+let accessToken = localStorage.getItem("elms_token") || null;
 let onUnauthorized = () => {};
 
 export function setToken(token) {
   accessToken = token;
-  if (token) sessionStorage.setItem("elms_token", token);
-  else sessionStorage.removeItem("elms_token");
+  if (token) localStorage.setItem("elms_token", token);
+  else {
+    localStorage.removeItem("elms_token");
+    localStorage.removeItem("elms_user");
+    cacheClear();
+  }
 }
 
 export function getToken() {
   return accessToken;
+}
+
+/** Save the user object to localStorage for instant hydration on reload. */
+export function setCachedUser(user) {
+  if (user) localStorage.setItem("elms_user", JSON.stringify(user));
+  else localStorage.removeItem("elms_user");
+}
+
+/** Read the cached user so we can render the UI before /auth/me returns. */
+export function getCachedUser() {
+  try {
+    const raw = localStorage.getItem("elms_user");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
 }
 
 export function setUnauthorizedHandler(fn) {

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import api from "../api/client.js";
+import { cacheGet, cacheSet } from "../api/cache";
 
 function Icon({ name, className = "h-5 w-5" }) {
   if (name === "people") {
@@ -62,10 +63,18 @@ export default function Layout({ children, links = [] }) {
 
   useEffect(() => {
     if (user) {
+      // Hydrate instantly from cache
+      const cached = cacheGet("notifications");
+      if (cached) {
+        setNotificationCount(cached.count || 0);
+        setNotifications(cached.notifications || []);
+      }
       api.get("/leaves/notifications")
         .then(res => {
-          setNotificationCount(res.data.count || 0);
-          setNotifications(res.data.notifications || []);
+          const data = res.data;
+          cacheSet("notifications", data, 30_000);
+          setNotificationCount(data.count || 0);
+          setNotifications(data.notifications || []);
         })
         .catch(err => console.error("Could not fetch notifications", err));
     }

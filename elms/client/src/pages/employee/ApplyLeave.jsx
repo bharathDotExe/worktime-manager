@@ -4,6 +4,7 @@ import Layout from "../../components/Layout.jsx";
 import api, { errorMessage } from "../../api/client";
 import { EMPLOYEE_LINKS } from "../../nav";
 import { useToast } from "../../components/Toast.jsx";
+import { cacheInvalidate } from "../../api/cache";
 
 const ALLOWED = ["application/pdf", "image/png", "image/jpeg"];
 const MAX_MB = 5;
@@ -75,6 +76,7 @@ export default function ApplyLeave() {
       if (file) body.append("document", file);
 
       await api.post("/leaves", body);
+      cacheInvalidate("leaves_*");
       pushToast("Leave request submitted", "success");
       navigate("/history");
     } catch (err) {

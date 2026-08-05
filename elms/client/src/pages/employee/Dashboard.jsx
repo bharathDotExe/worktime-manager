@@ -5,6 +5,7 @@ import StatusBadge from "../../components/StatusBadge.jsx";
 import api, { errorMessage } from "../../api/client";
 import { EMPLOYEE_LINKS } from "../../nav";
 import { fetchDocumentUrl } from "../../api/documents";
+import { cacheGet, cacheSet } from "../../api/cache";
 
 const CARDS = [
   {
@@ -191,21 +192,34 @@ export default function Dashboard() {
   const closeModal = useCallback(() => setSelectedLeave(null), []);
 
   useEffect(() => {
+    // Try to hydrate instantly from cache
+    const cached = cacheGet("leaves_mine");
+    if (cached) {
+      applyLeaves(cached);
+      setLoading(false);
+    }
+
+    // Always fetch fresh data (but UI is already showing if cached)
     api
       .get("/leaves/mine")
       .then(({ data }) => {
         const leaves = data.leaves || [];
-        setStats({
-          total: leaves.length,
-          pending: leaves.filter((l) => l.status === "pending").length,
-          approved: leaves.filter((l) => l.status === "approved").length,
-          rejected: leaves.filter((l) => l.status === "rejected").length,
-        });
-        setRecent(leaves.slice(0, 5));
+        cacheSet("leaves_mine", leaves, 60_000); // 60s TTL
+        applyLeaves(leaves);
       })
       .catch((err) => setError(errorMessage(err)))
       .finally(() => setLoading(false));
   }, []);
+
+  function applyLeaves(leaves) {
+    setStats({
+      total: leaves.length,
+      pending: leaves.filter((l) => l.status === "pending").length,
+      approved: leaves.filter((l) => l.status === "approved").length,
+      rejected: leaves.filter((l) => l.status === "rejected").length,
+    });
+    setRecent(leaves.slice(0, 5));
+  }
 
   return (
     <Layout links={EMPLOYEE_LINKS}>

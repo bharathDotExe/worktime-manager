@@ -29,6 +29,7 @@ async function register(req, res, next) {
 
     return res.status(201).json({
       token: signToken(user),
+      id: user.id,
       role: user.role,
       username: user.username,
     });
@@ -53,6 +54,7 @@ async function login(req, res, next) {
 
     return res.json({
       token: signToken(user),
+      id: user.id,
       role: user.role,
       username: user.username,
     });
