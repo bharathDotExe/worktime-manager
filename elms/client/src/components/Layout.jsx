@@ -121,29 +121,27 @@ export default function Layout({ children, links = [] }) {
       {/* Sidebar — desktop */}
       <aside className={`sticky top-0 hidden h-screen w-[240px] shrink-0 flex-col p-4 lg:flex ${sidebarTone}`}>
         <Link to="/" className="mb-6 flex items-center gap-2 px-2 py-2 text-white">
-          <img src="/elms_icon.png" alt="ELMS" className="h-[70px] w-[70px] object-contain scale-[1.8]" />
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white shadow-sm overflow-hidden">
+            <img src="/elms_icon.png" alt="ELMS" className="h-7 w-7 object-contain" />
+          </span>
           <span className="font-display text-xl font-bold tracking-tight">ELMS</span>
         </Link>
         {nav}
-        <div className="mt-auto rounded-2xl bg-[#0E8B65] p-4 shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
-          <div className="flex items-center gap-2.5 mb-2">
-            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/15">
-              <svg viewBox="0 0 24 24" className="h-4 w-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/>
+        <div className="mt-auto overflow-visible rounded-[20px] bg-[#0E8B65] p-5 pl-[85px] text-white relative shadow-[0_4px_20px_rgba(0,0,0,0.15)] min-h-[60px] flex items-center">
+          <img
+            src="/indoor_plant.png"
+            alt="Decorative Plant"
+            className="absolute -bottom-4 -left-6 w-[150px] h-[180px] object-cover object-bottom drop-shadow-[0_8px_12px_rgba(0,0,0,0.25)] mix-blend-normal pointer-events-none"
+          />
+          <div className="relative z-10 w-full">
+            <button className="flex w-full items-center justify-between text-[13px] font-semibold text-white transition-opacity hover:opacity-80">
+              Visit Help Center
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M3.33331 8H12.6666" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8 3.33337L12.6667 8.00004L8 12.6667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-            </div>
-            <p className="text-[13px] font-bold text-white">Help Center</p>
+            </button>
           </div>
-          <p className="text-[11px] text-white/70 leading-relaxed mb-3">
-            Questions about leave policies or how to submit a request?
-          </p>
-          <button className="flex w-full items-center justify-between rounded-lg bg-white/10 px-3 py-2 text-[12px] font-semibold text-white hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/40 transition-colors">
-            Visit Help Center
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-              <path d="M3.33331 8H12.6666" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M8 3.33337L12.6667 8.00004L8 12.6667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
         </div>
       </aside>
 
@@ -165,25 +163,21 @@ export default function Layout({ children, links = [] }) {
               </button>
             </div>
             {nav}
-            <div className="mt-auto rounded-2xl bg-[#0E8B65] p-4 shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
-              <div className="flex items-center gap-2.5 mb-2">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/15">
-                  <svg viewBox="0 0 24 24" className="h-4 w-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/>
+            <div className="mt-auto overflow-visible rounded-[20px] bg-[#0E8B65] p-5 pl-[85px] text-white relative shadow-[0_4px_20px_rgba(0,0,0,0.15)] min-h-[60px] flex items-center">
+              <img
+                src="/indoor_plant.png"
+                alt="Decorative Plant"
+                className="absolute -bottom-4 -left-6 w-[150px] h-[180px] object-cover object-bottom drop-shadow-[0_8px_12px_rgba(0,0,0,0.25)] mix-blend-normal pointer-events-none"
+              />
+              <div className="relative z-10 w-full">
+                <button className="flex w-full items-center justify-between text-[13px] font-semibold text-white transition-opacity hover:opacity-80">
+                  Visit Help Center
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <path d="M3.33331 8H12.6666" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M8 3.33337L12.6667 8.00004L8 12.6667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                </div>
-                <p className="text-[13px] font-bold text-white">Help Center</p>
+                </button>
               </div>
-              <p className="text-[11px] text-white/70 leading-relaxed mb-3">
-                Questions about leave policies or how to submit a request?
-              </p>
-              <button className="flex w-full items-center justify-between rounded-lg bg-white/10 px-3 py-2 text-[12px] font-semibold text-white hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/40 transition-colors">
-                Visit Help Center
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                  <path d="M3.33331 8H12.6666" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M8 3.33337L12.6667 8.00004L8 12.6667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
             </div>
           </aside>
         </div>

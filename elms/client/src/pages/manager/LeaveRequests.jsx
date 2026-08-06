@@ -441,6 +441,7 @@ const TILES = [
     tone: "bg-[#F8E9E8]",
     img: "/rejected_icon.png",
     isPending: false,
+    imgClass: "scale-[1.1]",
   },
 ];
 
@@ -605,7 +606,7 @@ export default function LeaveRequests() {
                   <img
                     src={t.img}
                     alt={t.label}
-                    className="h-full w-full object-contain scale-[1.7]"
+                    className={`h-full w-full object-contain ${t.imgClass || 'scale-[1.7]'}`}
                     aria-hidden="true"
                   />
                 </span>
