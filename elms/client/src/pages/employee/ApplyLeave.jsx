@@ -9,6 +9,82 @@ import { cacheInvalidate } from "../../api/cache";
 const ALLOWED = ["application/pdf", "image/png", "image/jpeg"];
 const MAX_MB = 5;
 
+const LEAVE_TYPES = [
+  {
+    id: "annual",
+    label: "Annual Leave",
+    desc: "Planned vacation or personal time off",
+    color: "bg-blue-50 border-blue-200 text-blue-700",
+    activeColor: "bg-blue-600 border-blue-600 text-white",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+      </svg>
+    ),
+  },
+  {
+    id: "sick",
+    label: "Sick Leave",
+    desc: "Illness, medical appointment or recovery",
+    color: "bg-rose-50 border-rose-200 text-rose-700",
+    activeColor: "bg-rose-600 border-rose-600 text-white",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+    ),
+  },
+  {
+    id: "casual",
+    label: "Casual Leave",
+    desc: "Short personal errands or urgent matters",
+    color: "bg-amber-50 border-amber-200 text-amber-700",
+    activeColor: "bg-amber-500 border-amber-500 text-white",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+      </svg>
+    ),
+  },
+  {
+    id: "family",
+    label: "Family Emergency",
+    desc: "Urgent family situation or bereavement",
+    color: "bg-purple-50 border-purple-200 text-purple-700",
+    activeColor: "bg-purple-600 border-purple-600 text-white",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
+  },
+  {
+    id: "maternity",
+    label: "Maternity / Paternity",
+    desc: "Parental leave for a new child",
+    color: "bg-pink-50 border-pink-200 text-pink-700",
+    activeColor: "bg-pink-600 border-pink-600 text-white",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2a5 5 0 0 1 5 5v3a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"/><path d="M7 21h10"/><path d="M12 15v6"/>
+      </svg>
+    ),
+  },
+  {
+    id: "other",
+    label: "Other",
+    desc: "Any other reason not listed above",
+    color: "bg-slate-50 border-slate-200 text-slate-700",
+    activeColor: "bg-slate-700 border-slate-700 text-white",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
+      </svg>
+    ),
+  },
+];
+
 function FileIcon({ type }) {
   if (type === "application/pdf")
     return (
@@ -29,6 +105,7 @@ function FileIcon({ type }) {
 
 export default function ApplyLeave() {
   const [form, setForm] = useState({ reason: "", start_date: "", end_date: "" });
+  const [leaveType, setLeaveType] = useState("");
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState("");
@@ -38,6 +115,7 @@ export default function ApplyLeave() {
   const fileInputRef = useRef(null);
 
   function validate() {
+    if (!leaveType) return "Please select a leave type";
     if (form.reason.trim().length < 5) return "Reason must be at least 5 characters";
     if (!form.start_date || !form.end_date) return "Both dates are required";
     if (form.end_date < form.start_date) return "End date must be on or after start date";
@@ -67,10 +145,15 @@ export default function ApplyLeave() {
     setError(problem);
     if (problem) return;
 
+    const typeName = LEAVE_TYPES.find((t) => t.id === leaveType)?.label || "";
+    const fullReason = typeName
+      ? `${typeName} — ${form.reason.trim()}`
+      : form.reason.trim();
+
     setBusy(true);
     try {
       const body = new FormData();
-      body.append("reason", form.reason.trim());
+      body.append("reason", fullReason);
       body.append("start_date", form.start_date);
       body.append("end_date", form.end_date);
       if (file) body.append("document", file);
@@ -111,7 +194,7 @@ export default function ApplyLeave() {
             </svg>
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Apply for leave</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Apply for Leave</h1>
             <p className="text-sm text-slate-500">Fill in the details below to submit a leave request</p>
           </div>
         </div>
@@ -119,7 +202,38 @@ export default function ApplyLeave() {
 
       <form onSubmit={onSubmit} className="max-w-2xl space-y-5">
 
-        {/* Reason card */}
+        {/* Leave Type card */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-slate-400 mb-4">
+            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M4 6h16M4 10h16M4 14h10"/>
+            </svg>
+            Leave Type
+            <span className="ml-1 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-semibold text-rose-600 normal-case tracking-normal">Required</span>
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {LEAVE_TYPES.map((t) => {
+              const isActive = leaveType === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => { setLeaveType(t.id); setError(""); }}
+                  className={`flex items-start gap-2.5 rounded-xl border px-3 py-3 text-left transition-all focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#0B6E4F]/40 ${
+                    isActive ? t.activeColor + " shadow-sm scale-[1.02]" : t.color + " hover:scale-[1.01]"
+                  }`}
+                >
+                  <span className={`mt-0.5 shrink-0 ${isActive ? "text-white/90" : ""}`}>{t.icon}</span>
+                  <span className="min-w-0">
+                    <span className="block text-[13px] font-semibold leading-tight">{t.label}</span>
+                    <span className={`block text-[11px] mt-0.5 leading-tight ${isActive ? "text-white/75" : "text-slate-500"}`}>{t.desc}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <label htmlFor="reason" className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-slate-400 mb-3">
             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

@@ -413,32 +413,98 @@ const TILES = [
   {
     key: "total",
     label: "Total Requests",
-    sub: "This Month",
+    sub: "This month",
     tone: "bg-[#F4F7FF]",
     img: "/total_requests_icon.png",
+    isPending: false,
   },
   {
     key: "approved",
     label: "Approved",
-    sub: "This Month",
+    sub: "This month",
     tone: "bg-[#E6F8F0]",
     img: "/approved_icon.png",
+    isPending: false,
   },
   {
     key: "pending",
-    label: "Pending",
-    sub: "This Month",
+    label: "Pending Review",
+    sub: "Requires action",
     tone: "bg-[#FFF4E5]",
     img: "/pending_icon.png",
+    isPending: true,
   },
   {
-    key: "balance",
-    label: "Available Days",
-    sub: "Balance",
-    tone: "bg-[#F3E8FF]",
-    img: "/available_days_icon.png",
+    key: "rejected",
+    label: "Rejected",
+    sub: "This month",
+    tone: "bg-[#F8E9E8]",
+    img: "/rejected_icon.png",
+    isPending: false,
   },
 ];
+
+/* Derive leave type from the reason string */
+function leaveTypeFromReason(reason = "") {
+  const r = reason.toLowerCase();
+  // New format: "Annual Leave — some detail"
+  if (reason.includes(" — ")) return reason.split(" — ")[0].trim();
+  // Legacy keyword matching
+  if (r.includes("annual")) return "Annual Leave";
+  if (r.includes("sick") || r.includes("unwell") || r.includes("medical")) return "Sick Leave";
+  if (r.includes("casual") || r.includes("personal") || r.includes("errand")) return "Casual Leave";
+  if (r.includes("family") || r.includes("emergency") || r.includes("bereavement")) return "Family Emergency";
+  if (r.includes("maternity") || r.includes("paternity") || r.includes("parental")) return "Maternity / Paternity";
+  return "Leave Request";
+}
+
+/* Skeleton row */
+function SkeletonRow() {
+  return (
+    <tr className="animate-pulse">
+      <td className="px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-full bg-slate-100 shrink-0" />
+          <div className="space-y-1.5">
+            <div className="h-3 w-28 rounded bg-slate-100" />
+            <div className="h-2.5 w-20 rounded bg-slate-100" />
+          </div>
+        </div>
+      </td>
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <td key={i} className="px-4 py-4">
+          <div className="h-3 w-16 rounded bg-slate-100" />
+        </td>
+      ))}
+    </tr>
+  );
+}
+
+/* Proper empty state */
+function EmptyState({ filter }) {
+  return (
+    <tr>
+      <td colSpan="7">
+        <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+          <div className="mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-slate-100">
+            <svg viewBox="0 0 24 24" className="h-8 w-8 text-slate-400" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18M8 14h4M8 18h2" />
+            </svg>
+          </div>
+          <p className="text-[15px] font-semibold text-slate-800">
+            {filter === "all" ? "No leave requests yet" : `No ${filter} requests`}
+          </p>
+          <p className="mt-1.5 max-w-[280px] text-sm text-slate-500 leading-relaxed">
+            {filter === "all"
+              ? "Leave requests from your employees will appear here once they are submitted."
+              : `There are currently no requests with a "${filter}" status.`}
+          </p>
+        </div>
+      </td>
+    </tr>
+  );
+}
 
 export default function LeaveRequests() {
   const [filter, setFilter] = useState("all");
@@ -510,13 +576,21 @@ export default function LeaveRequests() {
   return (
     <Layout links={MANAGER_LINKS}>
     <div className="pb-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-[26px] font-bold tracking-tight text-elms-ink">Dashboard</h1>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="font-display text-[26px] font-bold tracking-tight text-elms-ink">Manager Dashboard</h1>
           <p className="mt-1.5 text-[14px] font-medium text-slate-500">
-            Welcome back, {user?.username?.split(" ")[0] || "User"}! Here's what's happening with leaves today.
+            Welcome back, <span className="font-semibold text-slate-700">{user?.username?.split(" ")[0] || "Manager"}</span>. Here is an overview of your team&apos;s leave activity.
           </p>
         </div>
+        {counts.pending > 0 && (
+          <div className="shrink-0 flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-2.5">
+            <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+            <span className="text-[13px] font-semibold text-amber-700">
+              {counts.pending} pending {counts.pending === 1 ? "request" : "requests"} need review
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-6 xl:gap-8 items-stretch">
@@ -525,9 +599,9 @@ export default function LeaveRequests() {
             {TILES.map((t) => (
               <div
                 key={t.key}
-                className="flex items-center gap-3 xl:gap-4 rounded-[16px] border border-[#E2E8F5] bg-white p-4 shadow-[0_2px_12px_rgba(22,55,120,0.03)]"
+                className="group flex items-center gap-3 xl:gap-4 rounded-[16px] border border-[#E2E8F5] bg-white p-4 shadow-[0_2px_12px_rgba(22,55,120,0.03)] hover:shadow-[0_4px_20px_rgba(22,55,120,0.07)] transition-shadow"
               >
-                <span className={`grid h-[64px] w-[64px] shrink-0 place-items-center rounded-[16px] ${t.tone}`}>
+                <span className={`grid h-[64px] w-[64px] shrink-0 place-items-center rounded-[16px] ${t.tone} transition-transform duration-200 group-hover:scale-105`}>
                   <img
                     src={t.img}
                     alt={t.label}
@@ -536,120 +610,171 @@ export default function LeaveRequests() {
                   />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-[20px] xl:text-[22px] font-bold leading-none text-elms-ink">
-                    {loading ? "..." : (t.key === 'balance' ? (balances.find(b => b.id === 'annual')?.total - balances.find(b => b.id === 'annual')?.used || 24) : counts[t.key])}
-                  </p>
-                  <p className="mt-1.5 text-[12.5px] xl:text-[13px] font-medium text-slate-700">{t.label}</p>
-                  <p className="mt-0.5 text-[11px] text-slate-400">{t.sub}</p>
+                  {loading ? (
+                    <div className="space-y-2 animate-pulse">
+                      <div className="h-6 w-10 rounded bg-slate-100" />
+                      <div className="h-3 w-20 rounded bg-slate-100" />
+                      <div className="h-2.5 w-16 rounded bg-slate-100" />
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-[24px] xl:text-[26px] font-extrabold leading-none text-elms-ink tabular-nums">
+                        {counts[t.key] ?? 0}
+                      </p>
+                      <p className="mt-1.5 text-[12.5px] xl:text-[13px] font-semibold text-slate-700">{t.label}</p>
+                      {t.isPending ? (
+                        <span className="mt-0.5 inline-block rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-700">
+                          Requires Action
+                        </span>
+                      ) : (
+                        <p className="mt-0.5 text-[11px] text-slate-400">{t.sub}</p>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             ))}
           </section>
 
           <section className="rounded-[16px] border border-[#E2E8F5] bg-white shadow-[0_2px_12px_rgba(22,55,120,0.03)] overflow-hidden">
-            <div className="flex items-center justify-between border-b border-[#E2E8F5] px-6 py-4 xl:py-5">
-              <h2 className="text-[17px] font-bold text-elms-ink">Recent Leave Requests</h2>
-              <button className="flex items-center gap-1.5 rounded-lg border border-[#E2E8F5] px-4 py-2 text-[13px] font-semibold text-[#1769F0] transition hover:bg-[#F4F7FF]">
-                View All Requests
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <path d="M3.33331 8H12.6666" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M8 3.33337L12.6667 8.00004L8 12.6667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
+            {/* Header */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E2E8F5] px-6 py-4 xl:py-5">
+              <div className="flex items-center gap-3">
+                <h2 className="text-[17px] font-bold text-elms-ink">Recent Employee Leave Requests</h2>
+                {!loading && leaves.length > 0 && (
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-500">
+                    {leaves.length}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Filter tabs */}
+                <div className="flex items-center gap-1 rounded-lg border border-[#E2E8F5] bg-slate-50 p-1">
+                  {FILTERS.map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => setFilter(f)}
+                      className={`rounded-md px-3 py-1 text-[12px] font-semibold capitalize transition-colors ${
+                        filter === f
+                          ? "bg-white text-elms-ink shadow-sm border border-[#E2E8F5]"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
+                    >
+                      {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
+                      {f === "pending" && counts.pending > 0 && (
+                        <span className="ml-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[9px] font-bold text-white">
+                          {counts.pending}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            {!loading && (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[800px] text-left text-[14px]">
-                  <thead className="border-b border-[#E2E8F5] bg-white text-[13px] font-semibold text-slate-500">
-                    <tr>
-                      <th className="px-6 py-3.5 whitespace-nowrap">Employee</th>
-                      <th className="px-4 py-3.5 whitespace-nowrap">Leave Type</th>
-                      <th className="px-4 py-3.5 whitespace-nowrap">From</th>
-                      <th className="px-4 py-3.5 whitespace-nowrap">To</th>
-                      <th className="px-4 py-3.5 whitespace-nowrap">Duration</th>
-                      <th className="px-4 py-3.5 whitespace-nowrap">Status</th>
-                      <th className="px-6 py-3.5 text-right whitespace-nowrap">Requested On</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E2E8F5]">
-                    {empty ? (
-                      <tr>
-                        <td colSpan="7" className="py-8 text-center text-slate-500">
-                          No requests found.
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[800px] text-left text-[14px]">
+                <thead className="border-b border-[#E2E8F5] bg-slate-50/60 text-[12px] font-semibold uppercase tracking-wide text-slate-500">
+                  <tr>
+                    <th className="px-6 py-3.5 whitespace-nowrap">Employee</th>
+                    <th className="px-4 py-3.5 whitespace-nowrap">Leave Type</th>
+                    <th className="px-4 py-3.5 whitespace-nowrap">From</th>
+                    <th className="px-4 py-3.5 whitespace-nowrap">To</th>
+                    <th className="px-4 py-3.5 whitespace-nowrap">Duration</th>
+                    <th className="px-4 py-3.5 whitespace-nowrap">Status</th>
+                    <th className="px-6 py-3.5 text-right whitespace-nowrap">Submitted</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E2E8F5]">
+                  {loading ? (
+                    [1, 2, 3, 4].map((i) => <SkeletonRow key={i} />)
+                  ) : empty ? (
+                    <EmptyState filter={filter} />
+                  ) : (
+                    leaves.map((l) => (
+                      <tr
+                        key={l.id}
+                        className="cursor-pointer transition-colors hover:bg-[#F8FAFB] active:bg-slate-100 group"
+                        onClick={() => setActive(l)}
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === "Enter" && setActive(l)}
+                        role="button"
+                        aria-label={`Review leave request from ${l.employee_username}`}
+                      >
+                        {/* Employee */}
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <Avatar name={l.employee_username} />
+                            <div className="min-w-0 max-w-[160px]">
+                              <p className="truncate text-[14px] font-bold text-elms-ink" title={l.employee_username}>
+                                {l.employee_username}
+                              </p>
+                              <p className="truncate text-[12px] font-medium text-slate-500">
+                                {l.employee_email || "Employee"}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        {/* Leave Type */}
+                        <td className="px-4 py-4">
+                          <span className="inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[12px] font-medium text-slate-700 whitespace-nowrap">
+                            {leaveTypeFromReason(l.reason)}
+                          </span>
+                        </td>
+                        {/* Dates */}
+                        <td className="whitespace-nowrap px-4 py-4 text-[13px] text-slate-600">{fmt(l.start_date)}</td>
+                        <td className="whitespace-nowrap px-4 py-4 text-[13px] text-slate-600">{fmt(l.end_date)}</td>
+                        <td className="whitespace-nowrap px-4 py-4 text-[13px] font-medium text-slate-700">{days(l.start_date, l.end_date)}</td>
+                        {/* Status */}
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ${
+                            l.status === "approved" ? "bg-[#E6F8F0] text-[#0B6E4F]" :
+                            l.status === "pending"  ? "bg-[#FFF4E5] text-[#C98A1E]" :
+                            "bg-[#F8E9E8] text-[#B23B34]"
+                          }`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${
+                              l.status === "approved" ? "bg-[#0B6E4F]" :
+                              l.status === "pending"  ? "bg-[#C98A1E]" :
+                              "bg-[#B23B34]"
+                            }`} />
+                            {l.status.charAt(0).toUpperCase() + l.status.slice(1)}
+                          </span>
+                        </td>
+                        {/* Submitted + Review hint */}
+                        <td className="whitespace-nowrap px-6 py-4 text-right">
+                          <span className="text-[13px] text-slate-500">{fmt(l.created_at)}</span>
+                          {l.status === "pending" && (
+                            <span className="ml-3 hidden group-hover:inline-flex items-center gap-1 text-[11px] font-semibold text-[#1769F0]">
+                              Review
+                              <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
+                                <path d="M3.33331 8H12.6666" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M8 3.33337L12.6667 8.00004L8 12.6667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </span>
+                          )}
                         </td>
                       </tr>
-                    ) : (
-                      leaves.map((l) => (
-                        <tr key={l.id} className="cursor-pointer transition hover:bg-slate-50" onClick={() => setActive(l)}>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <Avatar name={l.employee_username} />
-                              <div className="min-w-[120px]">
-                                <p className="truncate text-[14.5px] font-semibold text-elms-ink">
-                                  {l.employee_username}
-                                </p>
-                                <p className="truncate text-[12.5px] text-slate-400">
-                                  {l.employee_username.includes("karan") ? "DevOps Engineer" 
-                                    : l.employee_username.includes("ananya") ? "Marketing Executive" 
-                                    : l.employee_username.includes("rohit") ? "Backend Developer"
-                                    : l.employee_username.includes("priya") ? "HR Manager"
-                                    : l.employee_username.includes("vikram") ? "Sales Lead"
-                                    : l.employee_username.includes("meera") ? "Content Strategist"
-                                    : l.employee_username.includes("arjun") ? "QA Engineer"
-                                    : "Product Designer"}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="whitespace-nowrap px-4 py-4 text-slate-600">
-                            {l.reason.toLowerCase().includes("sick") || l.reason.toLowerCase().includes("unwell") 
-                              ? "Sick Leave" 
-                              : l.reason.toLowerCase().includes("casual") || l.reason.toLowerCase().includes("personal") 
-                              ? "Casual Leave" 
-                              : "Annual Leave"}
-                          </td>
-                          <td className="whitespace-nowrap px-4 py-4 text-slate-600">
-                            {fmt(l.start_date)}
-                          </td>
-                          <td className="whitespace-nowrap px-4 py-4 text-slate-600">
-                            {fmt(l.end_date)}
-                          </td>
-                          <td className="whitespace-nowrap px-4 py-4 text-slate-600">
-                            {days(l.start_date, l.end_date)}
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap">
-                            <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                              l.status === 'approved' ? 'bg-[#E6F8F0] text-[#0B6E4F]' :
-                              l.status === 'pending' ? 'bg-[#FFF4E5] text-[#C98A1E]' :
-                              'bg-[#F8E9E8] text-[#B23B34]'
-                            }`}>
-                              {l.status.charAt(0).toUpperCase() + l.status.slice(1)}
-                            </span>
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-4 text-right text-slate-600">
-                            {fmt(l.created_at || new Date(Date.now() - 5*86400000))}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
 
             {!loading && !empty && (
-              <div className="flex items-center justify-between border-t border-[#E2E8F5] px-6 py-4 text-[13px] text-slate-500">
-                <span>Showing 1 to {Math.min(5, leaves.length)} of {leaves.length} requests</span>
-                <div className="flex items-center gap-2">
-                  <button className="flex h-7 w-7 items-center justify-center rounded text-slate-400 hover:text-slate-600">
-                    &lt;
+              <div className="flex items-center justify-between border-t border-[#E2E8F5] px-6 py-3.5 text-[12px] text-slate-500 bg-slate-50/40">
+                <span className="font-medium">
+                  Showing <span className="font-bold text-slate-700">{leaves.length}</span> {leaves.length === 1 ? "request" : "requests"}
+                  {filter !== "all" && <> with status <span className="font-bold text-slate-700 capitalize">{filter}</span></>}
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <button className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors" aria-label="Previous page">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </button>
-                  <button className="flex h-7 w-7 items-center justify-center rounded bg-[#1769F0] text-white">
+                  <button className="flex h-7 w-7 items-center justify-center rounded-md bg-[#1769F0] text-[12px] font-bold text-white">
                     1
                   </button>
-                  <button className="flex h-7 w-7 items-center justify-center rounded text-slate-400 hover:text-slate-600">
-                    &gt;
+                  <button className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors" aria-label="Next page">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 12l4-4-4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </button>
                 </div>
               </div>

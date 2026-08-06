@@ -477,12 +477,12 @@ export default function SystemArchitecture() {
     <div className={`flex flex-wrap items-center gap-x-5 gap-y-1.5 ${className}`}>
       <button onClick={() => start("success")} disabled={animating}
         className="font-mono text-[11px] text-elms-primary underline underline-offset-2 hover:opacity-75 focus-ink disabled:opacity-40 disabled:cursor-not-allowed">
-        Replay: successful request
+        Replay: approved request
       </button>
       <button onClick={replayRejected} disabled={animating}
         className="font-mono text-[11px] underline underline-offset-2 hover:opacity-75 focus-ink disabled:opacity-40 disabled:cursor-not-allowed"
         style={{ color:"var(--elms-reject)" }}>
-        Replay: rejected request
+        Replay: blocked request
       </button>
     </div>
   ) : null;
@@ -505,7 +505,7 @@ export default function SystemArchitecture() {
           {/* Top bar */}
           <div className="flex shrink-0 items-center justify-between border-b border-elms-line bg-elms-surface px-4 py-2.5">
             <p className="font-mono text-[10px] uppercase tracking-[0.13em] text-elms-muted">
-              System Architecture · scroll to zoom · drag to pan · pinch on touch
+              Request flow · scroll to zoom · drag to pan · pinch on touch
             </p>
             <button
               onClick={() => setExpanded(false)}
@@ -566,14 +566,13 @@ export default function SystemArchitecture() {
         <div className="mx-auto w-full max-w-[1120px] px-6 py-16 sm:py-20">
 
           {/* Header */}
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-elms-muted">System Architecture</p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-elms-muted">How Your Data Stays Safe</p>
           <h2 className="mt-5 max-w-3xl font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
-            Three layers. One request. No blind trust between them.
+            Every request is checked before anything happens.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-elms-muted">
-            Every request crosses three boundaries before it touches data, and every boundary can
-            reject it. Solid green = path taken; dashed red = dead end.
-            <span className="hidden sm:inline"> Use <strong className="font-medium text-elms-ink">Expand</strong> for full-detail zoom.</span>
+            Before any leave request is saved or updated, the system verifies who you are, whether you have permission, and whether the information is valid. If anything fails, the request is stopped immediately.
+            <span className="hidden sm:inline"> Use <strong className="font-medium text-elms-ink">Expand</strong> to see the full diagram.</span>
           </p>
 
           {/* ── Compact auto-fit view ── */}
@@ -642,9 +641,9 @@ export default function SystemArchitecture() {
           {/* Captions */}
           <div className="mt-10 grid gap-6 border-t border-elms-line pt-8 sm:grid-cols-3">
             {[
-              { eyebrow:"WHY THREE LAYERS",    body:"Each layer only trusts what the layer before it has verified. The frontend never touches the database directly." },
-              { eyebrow:"WHY IT MATTERS HERE", body:"An employee's browser could be modified to send anything. The backend checks identity and role again regardless of what the UI shows." },
-              { eyebrow:"WHAT GETS REJECTED",  body:"Missing or expired tokens, wrong roles, malformed input, and disallowed file types are all rejected before any database write." },
+              { eyebrow:"WHY THIS MATTERS",        body:"Your leave data passes through three independent checks before anything is saved. Each check only trusts what the one before it has confirmed." },
+              { eyebrow:"PROTECTING YOUR RECORDS",  body:"Even if someone tried to send a fake request, the system would catch it. Identity, permission, and data format are all verified independently." },
+              { eyebrow:"WHAT GETS BLOCKED",        body:"Unrecognised users, employees trying to act as managers, malformed submissions, and unsafe file types are all stopped before they can cause any harm." },
             ].map(({ eyebrow, body }) => (
               <div key={eyebrow}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-elms-primary">{eyebrow}</p>

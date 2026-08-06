@@ -23,10 +23,10 @@ import {
 
 const NAV = [
   ["Features", "#features"],
-  ["Workflow", "#workflow"],
-  ["Architecture", "#architecture"],
-  ["Security", "#security"],
-  ["Docs", "#docs"],
+  ["How It Works", "#workflow"],
+  ["Security", "#architecture"],
+  ["Data Protection", "#security"],
+  ["Technology", "#docs"],
 ];
 
 const STACK = [
@@ -44,87 +44,87 @@ const STACK = [
 
 const FEATURES = [
   {
-    title: "Apply for Leave",
-    body: "Submit leave requests with dates, reasons, and supporting documentation.",
+    title: "Request Leave in Seconds",
+    body: "Employees submit leave requests with dates, reasons, and any supporting documents — no paperwork, no back-and-forth emails.",
     icon: CalendarPlus
   },
   {
-    title: "Upload Documents",
-    body: "Securely attach medical certificates or supporting files to requests.",
+    title: "Attach Supporting Documents",
+    body: "Upload medical certificates or any relevant files directly with your request. Everything stays in one place.",
     icon: FileUp
   },
   {
-    title: "Leave History",
-    body: "Access a complete historical record of all past and pending requests.",
+    title: "Full Leave History",
+    body: "Every request — approved, rejected, or pending — is stored and accessible at any time. Nothing gets lost.",
     icon: History
   },
   {
-    title: "Approval Workflow",
-    body: "Structured review process requiring explicit approval or rejection.",
+    title: "Structured Approval Process",
+    body: "Managers review, add remarks, and approve or reject requests in a clear, consistent workflow that everyone can follow.",
     icon: Workflow
   },
   {
-    title: "Manager Dashboard",
-    body: "Centralized queue for managers to review and action employee requests.",
+    title: "Manager Overview",
+    body: "A single dashboard gives managers a clear view of all pending requests — so nothing slips through the cracks.",
     icon: LayoutDashboard
   },
   {
-    title: "Real-Time Notifications",
-    body: "Immediate status updates delivered securely upon manager action.",
+    title: "Instant Status Updates",
+    body: "Employees are notified the moment a manager acts on their request. No chasing, no waiting, no guessing.",
     icon: BellRing
   },
   {
-    title: "Role-Based Access",
-    body: "Strict separation of concerns between employees and management.",
+    title: "Separate Employee & Manager Views",
+    body: "Employees see only their own records. Managers see the full picture. The right people always see the right information.",
     icon: ShieldCheck
   },
   {
-    title: "Secure Authentication",
-    body: "Enterprise-grade credential management and session validation.",
+    title: "Secure Login & Sessions",
+    body: "Passwords are encrypted and sessions are securely managed. Only verified users can access the system.",
     icon: LockKeyhole
   }
 ];
 
 const STEPS = [
   {
-    route: "POST /api/leaves",
-    title: "Employee applies.",
-    body: "Reason, start date, end date, and an optional file are validated on the server before anything is saved — never trusted from the form alone.",
+    route: "Step 01",
+    title: "Employee submits a request.",
+    body: "Fill in the dates, reason, and attach any supporting documents. Submit in under a minute — no emails, no forms to print.",
   },
   {
-    route: "PATCH /api/leaves/:id",
-    title: "Manager reviews.",
-    body: "The manager account is fixed and seeded once. Approvals and rejections require written remarks.",
+    route: "Step 02",
+    title: "Manager reviews and decides.",
+    body: "The manager sees the request in their dashboard, reads the details, and either approves or rejects it — with a required note explaining the decision.",
   },
   {
-    route: "GET /api/leaves/notifications",
-    title: "Employee is notified.",
-    body: "The next time the employee's session checks in, they see the new status exactly once, tracked server-side.",
+    route: "Step 03",
+    title: "Employee is notified instantly.",
+    body: "The moment a decision is made, the employee sees the updated status and the manager's remarks. No follow-up needed from either side.",
   },
 ];
 
 const BUILT_WITH = [
-  ["Frontend", "React + Vite + Tailwind", "Fast to build, easy to keep consistent."],
-  ["Backend", "Node.js + Express", "A small, explicit API surface, easy to reason about."],
+  ["User Interface", "React + Vite + Tailwind", "A fast, modern interface that feels responsive on any device — desktop, tablet, or mobile."],
+  ["Application Layer", "Node.js + Express", "A reliable and efficient engine that handles requests quickly and consistently, even under load."],
   [
-    "Database",
+    "Data Storage",
     "PostgreSQL",
-    "Relational integrity for a workflow that can't afford half-saved state.",
+    "Your leave records are stored in a structured, dependable database — nothing is ever half-saved or lost.",
   ],
   [
-    "Security",
-    "JWT, bcrypt, Helmet, Zod",
-    "Authentication, password hashing, safe headers, and input validation, each doing one job.",
+    "Security Layer",
+    "Encrypted passwords · Secure sessions · Input filtering",
+    "Every layer of the system is built to protect user accounts, prevent unauthorized access, and keep your data safe.",
   ],
 ];
 
 const CHECKS = [
-  "Passwords hashed with bcrypt (cost factor 12) — never stored in plain text.",
-  "Role-based authorization checks identity and permissions on every server request.",
-  "Employee queries are strictly scoped (WHERE employee_id = $1) at the database level.",
-  "File uploads are type-checked, size-capped, and renamed before touching the disk.",
-  "Documents are served only to the owner or their manager, bypassing public folders.",
-  "SQL injection protection via strictly parameterized queries.",
+  "Passwords are securely encrypted — they are never stored in a readable format.",
+  "Every action is verified: the system always checks who you are and what you are allowed to do before proceeding.",
+  "Each employee can only see their own records — no one can access another person's leave data.",
+  "Uploaded documents are validated for type and size, and safely stored — no harmful files can enter the system.",
+  "Supporting documents are only visible to the employee who submitted them and their manager.",
+  "Built-in protection against common cyber threats to keep your organisation's data safe.",
 ];
 
 function Check() {
@@ -280,23 +280,23 @@ export default function Landing() {
               Employee Leave Management System
             </p>
             <h1 className="mt-4 max-w-3xl font-display text-[2.4rem] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[56px]">
-              Secure Leave Management for Modern Teams
+              Leave Management Made Simple — for Your Entire Team
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-relaxed text-elms-muted">
-              Employees apply for leave, attach documents, and track progress. Managers review, approve, or reject — backed by enterprise-grade security.
+              ELMS helps organisations handle employee leave without the chaos. Employees submit requests in seconds. Managers review and decide with full context. Everyone stays informed — automatically.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               {user ? (
                 <Link to={home} className={btnPrimary}>
-                  Get started
+                  Go to Dashboard
                 </Link>
               ) : (
                 <button onClick={() => setAuthModal("login")} className={btnPrimary}>
-                  Get started
+                  Get Started Free
                 </button>
               )}
               <a href="#workflow" className={btnGhost}>
-                Explore Workflow
+                See How It Works
               </a>
             </div>
           </div>
@@ -327,19 +327,19 @@ export default function Landing() {
         {/* 2. Product Overview */}
         <Section id="overview" contentClassName="px-6 pb-16 pt-10 sm:pb-20 sm:pt-16">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
-            How ELMS Works
+            From request to decision — in one place
           </h2>
           <p className="mt-3 max-w-xl text-base leading-relaxed text-elms-muted">
-            A streamlined workflow: employees submit, managers decide, everyone stays informed.
+            No emails. No spreadsheets. No confusion. Employees submit, managers decide, and the whole process is tracked automatically.
           </p>
 
           {/* Mobile: 2-col grid with arrows */}
           <div className="mt-8 grid grid-cols-2 gap-3 sm:hidden">
             {[
               { Icon: UserCircle, label: "Employee", accent: false },
-              { Icon: FileUp, label: "Leave Request", accent: true },
-              { Icon: Briefcase, label: "Manager Review", accent: false },
-              { Icon: BellRing, label: "Notification", accent: true },
+              { Icon: FileUp, label: "Submits Request", accent: true },
+              { Icon: Briefcase, label: "Manager Reviews", accent: false },
+              { Icon: BellRing, label: "Gets Notified", accent: true },
             ].map(({ Icon, label, accent }, i) => (
               <div key={label} className="flex flex-col items-center gap-3 rounded-lg border border-elms-line bg-elms-surface p-5">
                 <div className={`h-11 w-11 rounded-full border flex items-center justify-center ${
@@ -357,9 +357,9 @@ export default function Landing() {
           <div className="mt-8 hidden sm:flex items-center justify-between rounded-lg border border-elms-line bg-elms-surface p-8 gap-2">
             {[
               { Icon: UserCircle, label: "Employee", accent: false },
-              { Icon: FileUp, label: "Leave Request", accent: true },
-              { Icon: Briefcase, label: "Manager Review", accent: false },
-              { Icon: BellRing, label: "Notification", accent: true },
+              { Icon: FileUp, label: "Submits Request", accent: true },
+              { Icon: Briefcase, label: "Manager Reviews", accent: false },
+              { Icon: BellRing, label: "Gets Notified", accent: true },
             ].map(({ Icon, label, accent }, i, arr) => (
               <React.Fragment key={label}>
                 <div className="flex flex-col items-center gap-3 shrink-0">
@@ -381,7 +381,7 @@ export default function Landing() {
         {/* 3. Core Features */}
         <Section id="features" className="bg-elms-surface">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
-            Core Features
+            Everything your team needs to manage leave
           </h2>
           <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {FEATURES.map((feature) => {
@@ -402,10 +402,10 @@ export default function Landing() {
         {/* 4. Workflow */}
         <Section id="workflow">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
-            Transparent Workflow
+            A clear, three-step process
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-elms-muted">
-            The system tracks every stage of the lifecycle. Status changes are explicitly captured, and state is strictly validated at every step.
+            Every leave request follows the same simple path — from submission to decision to notification. No steps get skipped. No one is left in the dark.
           </p>
           <div className="mt-10 rounded-lg border border-elms-line bg-elms-surface p-6 sm:p-10 shadow-sm overflow-x-auto">
             <div className="min-w-[700px]">
@@ -415,7 +415,7 @@ export default function Landing() {
           <ol className="mt-10 grid gap-px overflow-hidden rounded-lg border border-elms-line bg-elms-line md:grid-cols-3">
             {STEPS.map((s, i) => (
               <li key={s.route} className="bg-elms-surface p-6">
-                <p className="font-mono text-[11px] text-elms-primary">{s.route}</p>
+                <p className="font-mono text-[11px] text-elms-primary font-semibold">{s.route}</p>
                 <h3 className="mt-3 text-sm font-semibold">
                   <span className="mr-2 font-mono text-elms-muted">
                     {String(i + 1).padStart(2, "0")}
@@ -434,10 +434,10 @@ export default function Landing() {
         {/* 6. Security */}
         <Section id="security" className="bg-elms-surface">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
-            Enterprise Security
+            Your data is safe — by design
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-elms-muted">
-            Security isn't an afterthought. The system is designed with built-in protections against unauthorized access, data leaks, and malicious payloads.
+            Security is built into every layer, not added as an afterthought. Your employees' records, documents, and account details are protected at every step.
           </p>
           <ul className="mt-10 grid gap-x-10 gap-y-5 md:grid-cols-2">
             {CHECKS.map((c) => (
@@ -452,7 +452,7 @@ export default function Landing() {
         {/* 7. Tech Stack (Docs) */}
         <Section id="docs">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
-            Built with modern standards
+            Reliable technology, built for the long run
           </h2>
           <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-elms-line bg-elms-line sm:grid-cols-2 lg:grid-cols-4">
             {BUILT_WITH.map(([kind, stack, why]) => (
@@ -470,7 +470,7 @@ export default function Landing() {
         {/* 8. User Roles */}
         <Section className="bg-elms-surface">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
-            One system, two clear roles
+            Designed for both sides of the process
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             
@@ -485,11 +485,11 @@ export default function Landing() {
               </div>
               <ul className="space-y-3">
                 {[
-                  "Apply for leave requests",
-                  "Upload supporting medical documents",
-                  "Track live status of pending requests",
-                  "Receive notifications upon review",
-                  "Isolated data access (can only view own records)"
+                  "Submit a leave request in under a minute",
+                  "Attach medical certificates or any supporting documents",
+                  "Check the live status of every request you've made",
+                  "Get notified the moment your manager responds",
+                  "Your data is private — only you and your manager can see it"
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-elms-muted">
                     <CheckCircle2 className="w-4 h-4 text-elms-primary shrink-0 mt-0.5" />
@@ -510,11 +510,11 @@ export default function Landing() {
               </div>
               <ul className="space-y-3">
                 {[
-                  "Review all organizational leave requests",
-                  "View and download securely attached documents",
-                  "Approve or reject requests definitively",
-                  "Provide required remarks and feedback",
-                  "Pre-seeded account structure for security"
+                  "See all pending and past leave requests in one dashboard",
+                  "View and download documents submitted by employees",
+                  "Approve or reject requests with a single click",
+                  "Add a note to explain your decision — employees will see it",
+                  "Dedicated manager access that is fully secure and separate"
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-elms-muted">
                     <CheckCircle2 className="w-4 h-4 text-elms-primary shrink-0 mt-0.5" />
@@ -528,32 +528,32 @@ export default function Landing() {
         </Section>
 
         {/* 9. Final CTA */}
-        <Section className="relative isolate overflow-hidden">
+        <Section className="relative isolate overflow-hidden min-h-[340px] lg:min-h-[420px]">
           <div className="max-w-2xl relative z-10">
             <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] sm:text-3xl">
-              Start Managing Leave
+              Ready to bring order to your leave management?
             </h2>
             <p className="mt-4 text-base leading-relaxed text-elms-muted">
-              Experience the complete lifecycle of an employee leave request within our secure dashboard.
+              Join organisations that have replaced messy emails and spreadsheets with a clear, secure, and simple leave management process.
             </p>
             {user ? (
               <Link
                 to={home}
                 className="mt-6 inline-flex items-center gap-2 rounded-md border border-elms-primary px-5 py-2.5 text-sm font-medium text-elms-primary transition-colors hover:bg-elms-primary hover:text-white focus-ink"
               >
-                Launch Dashboard <span aria-hidden="true">→</span>
+                Open Dashboard <span aria-hidden="true">→</span>
               </Link>
             ) : (
               <button
                 onClick={() => setAuthModal("login")}
                 className="mt-6 inline-flex items-center gap-2 rounded-md border border-elms-primary px-5 py-2.5 text-sm font-medium text-elms-primary transition-colors hover:bg-elms-primary hover:text-white focus-ink"
               >
-                Launch Dashboard <span aria-hidden="true">→</span>
+                Get Started Free <span aria-hidden="true">→</span>
               </button>
             )}
           </div>
           <div aria-hidden="true" className="pointer-events-none absolute right-[6%] top-1/2 z-[5] hidden w-[320px] -translate-y-1/2 lg:block xl:w-[390px] animate-float">
-            <img src={heroMonitorSticker} alt="" className="w-full drop-shadow-[0_24px_28px_rgba(20,23,31,0.25)]" />
+            <img src={heroMonitorSticker} alt="" className="w-full max-h-[340px] object-contain drop-shadow-[0_24px_28px_rgba(20,23,31,0.25)]" />
           </div>
         </Section>
       </main>
@@ -564,7 +564,7 @@ export default function Landing() {
             ELMS — Employee Leave Management System
           </p>
           <p className="font-mono text-[11px] text-elms-muted/70">
-            React · Express · PostgreSQL · JWT
+            Simple · Secure · Reliable
           </p>
         </div>
       </footer>
