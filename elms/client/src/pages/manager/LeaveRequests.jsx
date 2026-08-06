@@ -143,14 +143,19 @@ function Avatar({ name = "", avatarUrl = null }) {
 }
 
 function ReviewModal({ leave, onClose, onDone }) {
-  const [status, setStatus] = useState("approved");
+  const [status, setStatus] = useState(null); // No default selection to force a conscious choice
   const [remarks, setRemarks] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [expanded, setExpanded] = useState(false);
+  const [expandedDoc, setExpandedDoc] = useState(false);
   const [docPreview, setDocPreview] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  
   const dialogRef = useRef(null);
   const previousFocusRef = useRef(null);
+
+  // Extract a nice display name from email (e.g. divya.menon@gcu.in -> Divya Menon)
+  const displayName = leave.employee_username.split('@')[0].split('.').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
   useEffect(() => {
     if (leave.has_document) {
@@ -164,10 +169,13 @@ function ReviewModal({ leave, onClose, onDone }) {
 
   useEffect(() => {
     previousFocusRef.current = document.activeElement;
-    const focusable = dialogRef.current?.querySelectorAll("button:not([disabled]), textarea:not([disabled])");
+    const focusable = dialogRef.current?.querySelectorAll("button:not([disabled]), textarea:not([disabled]), a:not([disabled])");
     focusable?.[0]?.focus();
     function handleKeyDown(e) {
-      if (e.key === "Escape" && !busy) onClose();
+      if (e.key === "Escape" && !busy) {
+        if (showConfirm) setShowConfirm(false);
+        else onClose();
+      }
       if (e.key !== "Tab" || !focusable?.length) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
@@ -184,224 +192,311 @@ function ReviewModal({ leave, onClose, onDone }) {
       document.removeEventListener("keydown", handleKeyDown);
       previousFocusRef.current?.focus?.();
     };
-  }, [busy, onClose]);
+  }, [busy, onClose, showConfirm]);
 
-  async function confirm() {
-    if (remarks.trim().length < 3) return setError("Remarks are required");
+  function handleConfirmClick() {
+    if (!status) return setError("Please select Approve or Reject.");
+    if (remarks.trim().length < 3) return setError("Decision remarks are required.");
     setError("");
+    setShowConfirm(true);
+  }
+
+  async function submitDecision() {
     setBusy(true);
     try {
       await api.patch(`/leaves/${leave.id}`, { status, manager_remarks: remarks.trim() });
       onDone(status);
     } catch (err) {
       setError(errorMessage(err, "Could not update the request"));
+      setShowConfirm(false);
     } finally {
       setBusy(false);
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-      <div
-        className={`relative z-10 w-full rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col transition-all duration-300 ease-out ${
-          expanded ? "max-w-4xl max-h-[90vh]" : "max-w-md max-h-[85vh]"
-        }`}
-        ref={dialogRef}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4 shrink-0">
-          <div className="flex items-center gap-3">
-            <Avatar name={leave.employee_username} />
-            <div>
-              <h2 className="font-display text-lg font-bold text-slate-900">{leave.employee_username}</h2>
-              <p className="mt-0.5 text-xs text-slate-500">
-                Request #{leave.id} • {fmt(leave.start_date)} — {fmt(leave.end_date)}
-              </p>
-            </div>
+  // Derive leave type
+  const r = (leave.reason || "").toLowerCase();
+  let leaveType = "Leave Request";
+  if (leave.reason.includes(" — ")) leaveType = leave.reason.split(" — ")[0].trim();
+  else if (r.includes("annual")) leaveType = "Annual Leave";
+  else if (r.includes("sick") || r.includes("unwell") || r.includes("medical")) leaveType = "Sick Leave";
+  else if (r.includes("casual") || r.includes("personal") || r.includes("errand")) leaveType = "Casual Leave";
+  else if (r.includes("family") || r.includes("emergency") || r.includes("bereavement")) leaveType = "Family Emergency";
+  else if (r.includes("maternity") || r.includes("paternity") || r.includes("parental")) leaveType = "Maternity / Paternity";
+
+  // If showing confirmation dialog
+  if (showConfirm) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div className="relative z-10 w-full max-w-md rounded-2xl bg-white shadow-2xl p-6 text-center" ref={dialogRef}>
+          <div className={`mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full ${status === 'approved' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+            {status === 'approved' ? (
+              <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            ) : (
+              <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            )}
           </div>
-          <div className="flex items-center gap-1">
+          <h3 className="text-xl font-bold text-slate-900 mb-2">
+            {status === 'approved' ? 'Approve Leave Request?' : 'Reject Leave Request?'}
+          </h3>
+          <p className="text-sm text-slate-500 mb-8 px-2">
+            {status === 'approved' 
+              ? "Are you sure you want to approve this leave request? The employee will be notified immediately."
+              : "Are you sure you want to reject this leave request? The employee will receive your remarks."}
+          </p>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button
-              onClick={() => setExpanded(!expanded)}
-              className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-200/70 hover:text-slate-700 transition"
-              aria-label={expanded ? "Collapse" : "Expand"}
-              title={expanded ? "Collapse" : "Expand"}
+              onClick={() => setShowConfirm(false)}
+              disabled={busy}
+              className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition"
             >
-              {expanded ? (
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="4 14 10 14 10 20"/>
-                  <polyline points="20 10 14 10 14 4"/>
-                  <line x1="14" y1="10" x2="21" y2="3"/>
-                  <line x1="3" y1="21" x2="10" y2="14"/>
-                </svg>
+              Cancel
+            </button>
+            <button
+              onClick={submitDecision}
+              disabled={busy}
+              className={`rounded-lg px-6 py-2.5 text-sm font-bold text-white shadow-md transition flex items-center justify-center gap-2 ${
+                status === 'approved' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
+              }`}
+            >
+              {busy ? (
+                <>
+                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>
+                  Processing...
+                </>
               ) : (
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="15 3 21 3 21 9"/>
-                  <polyline points="9 21 3 21 3 15"/>
-                  <line x1="21" y1="3" x2="14" y2="10"/>
-                  <line x1="3" y1="21" x2="10" y2="14"/>
-                </svg>
+                `Yes, ${status === 'approved' ? 'Approve' : 'Reject'}`
               )}
             </button>
-            <button
-              onClick={onClose}
-              className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-200/70 hover:text-slate-700 transition"
-              disabled={busy}
-            >
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                <path d="M18 6L6 18M6 6l12 12"/>
-              </svg>
-            </button>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 sm:p-6">
+      <div
+        className="relative z-10 w-full max-w-2xl max-h-full rounded-2xl bg-white shadow-2xl flex flex-col"
+        ref={dialogRef}
+      >
+        {/* Header - Employee Info */}
+        <div className="flex items-start justify-between border-b border-slate-100 bg-white px-6 py-5 shrink-0 rounded-t-2xl">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 shrink-0">
+              <Avatar name={displayName} />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 leading-tight">{displayName}</h2>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[13px] font-medium text-slate-600">Employee</span>
+                <span className="text-slate-300">•</span>
+                <span className="text-[13px] text-slate-500">{leave.employee_username}</span>
+              </div>
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="inline-flex items-center rounded bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 font-mono">
+                  ID: REQ-{leave.id.toString().padStart(4, '0')}
+                </span>
+                <StatusBadge status={leave.status} />
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+            aria-label="Close"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
         </div>
 
         {/* Scrollable Body */}
-        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
+        <div className="overflow-y-auto flex-1 px-6 py-6 space-y-8 bg-slate-50/50">
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className={`rounded-xl border border-slate-100 bg-slate-50 p-4 col-span-2`}>
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Leave Type</p>
-                  <p className="text-sm font-bold text-slate-800">
-                    {leave.reason.toLowerCase().includes("sick") || leave.reason.toLowerCase().includes("unwell") 
-                      ? "Sick Leave" 
-                      : leave.reason.toLowerCase().includes("casual") || leave.reason.toLowerCase().includes("personal") 
-                      ? "Casual Leave" 
-                      : "Annual Leave"}
-                  </p>
+          {/* Leave Information Grid */}
+          <div>
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3 ml-1">Leave Details</h3>
+            <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="grid grid-cols-2 divide-x divide-slate-100">
+                <div className="p-4">
+                  <p className="text-[11px] font-semibold text-slate-500 mb-1">Leave Type</p>
+                  <p className="text-sm font-bold text-slate-900">{leaveType}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Duration</p>
-                  <p className="text-sm font-bold text-slate-800">{days(leave.start_date, leave.end_date)}</p>
+                <div className="p-4">
+                  <p className="text-[11px] font-semibold text-slate-500 mb-1">Duration</p>
+                  <p className="text-sm font-bold text-slate-900">{days(leave.start_date, leave.end_date)}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 divide-x divide-slate-100 border-t border-slate-100 bg-slate-50/50">
+                <div className="p-4">
+                  <p className="text-[11px] font-semibold text-slate-500 mb-1">Dates</p>
+                  <p className="text-[13px] font-medium text-slate-700">{fmt(leave.start_date)} — {fmt(leave.end_date)}</p>
+                </div>
+                <div className="p-4">
+                  <p className="text-[11px] font-semibold text-slate-500 mb-1">Submitted On</p>
+                  <p className="text-[13px] font-medium text-slate-700">{fmt(leave.created_at)}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Reason</p>
-            <p className="text-sm text-slate-800 leading-relaxed">{leave.reason}</p>
+          {/* Reason Section */}
+          <div>
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3 ml-1">Reason for Leave</h3>
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <p className="text-[14px] text-slate-800 leading-relaxed whitespace-pre-wrap break-words">{leave.reason}</p>
+            </div>
           </div>
 
+          {/* Supporting Document */}
           {leave.has_document && (
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Supporting Document</p>
-                <button
-                  type="button"
-                  onClick={() => openDocument(leave.id)}
-                  className="flex items-center gap-1.5 text-[11px] font-semibold text-[#1769F0] hover:underline"
-                >
-                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                  Open Original
-                </button>
-              </div>
-              {docPreview ? (
-                docPreview.type.startsWith("image/") ? (
-                  <img src={docPreview.url} alt="Attachment Preview" className="w-full max-h-48 object-contain rounded-lg border border-slate-200 bg-white" />
-                ) : (
-                  <iframe src={docPreview.url} className="w-full h-48 rounded-lg border border-slate-200 bg-white" title="Attachment Preview"></iframe>
-                )
-              ) : (
-                <div className="w-full h-32 flex items-center justify-center rounded-lg border border-slate-200 border-dashed bg-slate-100">
-                  <div className="flex flex-col items-center gap-2 text-slate-400">
-                    <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
-                    </svg>
-                    <span className="text-xs font-medium">Loading preview...</span>
+            <div>
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3 ml-1">Supporting Document</h3>
+              <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-8 w-8 place-items-center rounded bg-blue-100 text-blue-600">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-bold text-slate-800">{leave.document_name || 'Document.pdf'}</p>
+                      <p className="text-[11px] text-slate-500">PDF Document • 1 File</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedDoc(!expandedDoc)}
+                      className="text-[12px] font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200 px-2.5 py-1.5 rounded transition"
+                    >
+                      {expandedDoc ? "Collapse" : "Expand"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openDocument(leave.id)}
+                      className="flex items-center gap-1.5 text-[12px] font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2.5 py-1.5 rounded transition"
+                    >
+                      Open Full Document
+                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
-              )}
+                <div className={`${expandedDoc ? "h-96" : "h-40"} transition-all duration-300 ease-in-out relative bg-slate-100`}>
+                  {docPreview ? (
+                    docPreview.type.startsWith("image/") ? (
+                      <div className="h-full w-full p-4 flex items-center justify-center overflow-auto">
+                        <img src={docPreview.url} alt="Attachment Preview" className="max-w-full max-h-full object-contain rounded shadow-sm" />
+                      </div>
+                    ) : (
+                      <iframe src={docPreview.url} className="w-full h-full" title="Attachment Preview"></iframe>
+                    )
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-2 text-slate-400">
+                        <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                        </svg>
+                        <span className="text-xs font-medium">Loading preview...</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
-          <div>
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-2 block">Decision</span>
-            <div className={`grid gap-3 ${expanded ? "grid-cols-2 max-w-sm" : "grid-cols-2"}`}>
-              {["approved", "rejected"].map((s) => {
-                const isActive = status === s;
-                const isApproved = s === "approved";
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setStatus(s)}
-                    className={`rounded-xl border px-4 py-3 text-sm font-bold capitalize transition-all duration-200 flex items-center justify-center gap-2 ${
-                      isActive
-                        ? isApproved
-                          ? "bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-500/20"
-                          : "bg-rose-500 border-rose-500 text-white shadow-md shadow-rose-500/20"
-                        : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50"
-                    }`}
-                  >
-                    {isApproved ? (
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-                    ) : (
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                    )}
-                    {s}
-                  </button>
-                );
-              })}
+          {/* Decision Section */}
+          <div className="pt-2">
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3 ml-1">Decision</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setStatus("approved")}
+                className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 p-4 transition-all duration-200 ${
+                  status === "approved"
+                    ? "border-emerald-500 bg-emerald-50 shadow-[0_0_0_4px_rgba(16,185,129,0.1)]"
+                    : "border-slate-200 bg-white hover:border-emerald-200 hover:bg-emerald-50/50"
+                }`}
+              >
+                <div className={`grid h-10 w-10 place-items-center rounded-full transition-colors ${
+                  status === "approved" ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400 group-hover:bg-emerald-100 group-hover:text-emerald-500"
+                }`}>
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                </div>
+                <span className={`font-bold ${status === "approved" ? "text-emerald-700" : "text-slate-600"}`}>Approve</span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setStatus("rejected")}
+                className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 p-4 transition-all duration-200 ${
+                  status === "rejected"
+                    ? "border-rose-500 bg-rose-50 shadow-[0_0_0_4px_rgba(244,63,94,0.1)]"
+                    : "border-slate-200 bg-white hover:border-rose-200 hover:bg-rose-50/50"
+                }`}
+              >
+                <div className={`grid h-10 w-10 place-items-center rounded-full transition-colors ${
+                  status === "rejected" ? "bg-rose-500 text-white" : "bg-slate-100 text-slate-400 group-hover:bg-rose-100 group-hover:text-rose-500"
+                }`}>
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </div>
+                <span className={`font-bold ${status === "rejected" ? "text-rose-700" : "text-slate-600"}`}>Reject</span>
+              </button>
             </div>
           </div>
 
-          {/* Highly Recognizable Manager Remarks */}
-          <div className="rounded-xl border-l-4 border-[#0B6E4F] bg-[#F0FBF6] p-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="grid h-7 w-7 place-items-center rounded-lg bg-[#0B6E4F] text-white">
-                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
-              </div>
-              <label className="text-xs font-bold uppercase tracking-wide text-[#0B6E4F]" htmlFor="remarks">
-                Manager Remarks (Required)
+          {/* Decision Remarks */}
+          <div>
+            <div className="flex items-center justify-between mb-2 ml-1">
+              <label htmlFor="remarks" className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                Decision Remarks
               </label>
+              <span className="text-[11px] font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Required</span>
             </div>
             <textarea
               id="remarks"
-              rows={expanded ? 6 : 3}
-              placeholder="Provide a reason or instructions..."
-              className="w-full rounded-lg border border-[#0B6E4F]/20 bg-white px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-[#0B6E4F] focus:ring-2 focus:ring-[#0B6E4F]/20 transition-all shadow-inner"
+              rows={4}
+              placeholder="Explain the reason for your decision or provide additional instructions..."
+              className={`w-full rounded-xl border bg-white px-4 py-3 text-[14px] text-slate-800 placeholder-slate-400 outline-none transition-all shadow-sm resize-none ${
+                error && error.includes("remarks") ? "border-rose-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20" : "border-slate-200 focus:border-elms-primary focus:ring-2 focus:ring-elms-primary/20"
+              }`}
               value={remarks}
-              onChange={(e) => setRemarks(e.target.value)}
+              onChange={(e) => {
+                setRemarks(e.target.value);
+                if (error) setError("");
+              }}
             />
+            {error && (
+              <p className="mt-2 text-[13px] font-medium text-rose-600 flex items-center gap-1.5">
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                {error}
+              </p>
+            )}
           </div>
-
-          {error && (
-            <div className="flex items-center gap-2 rounded-lg bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
-              <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-              {error}
-            </div>
-          )}
+          
         </div>
 
-        {/* Footer */}
-        <div className="border-t border-slate-100 bg-slate-50 px-6 py-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end shrink-0">
+        {/* Sticky Action Bar */}
+        <div className="border-t border-slate-200 bg-white px-6 py-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end shrink-0 rounded-b-2xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)]">
           <button
-            className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition"
+            className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition focus:outline-none focus:ring-2 focus:ring-slate-200"
             onClick={onClose}
-            disabled={busy}
           >
             Cancel
           </button>
           <button
-            className="rounded-lg bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-slate-800 disabled:opacity-50 flex items-center gap-2"
-            onClick={confirm}
-            disabled={busy || !remarks.trim()}
+            className="rounded-lg bg-elms-ink px-8 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-elms-ink/90 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-elms-ink/40"
+            onClick={handleConfirmClick}
+            disabled={!status || remarks.trim().length < 3}
           >
-            {busy ? (
-              <>
-                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
-                </svg>
-                Saving...
-              </>
-            ) : "Confirm Decision"}
+            Confirm Decision
           </button>
         </div>
       </div>
