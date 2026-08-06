@@ -441,7 +441,7 @@ const TILES = [
     tone: "bg-[#F8E9E8]",
     img: "/rejected_icon.png",
     isPending: false,
-    imgClass: "scale-[1.1]",
+    imgClass: "scale-[0.8]",
   },
 ];
 

@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Layout from "../../components/Layout.jsx";
 import StatusBadge from "../../components/StatusBadge.jsx";
@@ -35,6 +35,7 @@ const CARDS = [
     sub: "All time",
     tone: "bg-[#F8E9E8]",
     img: "/rejected_icon.png",
+    imgClass: "scale-[0.8]",
   },
 ];
 
@@ -331,7 +332,7 @@ export default function Dashboard() {
               <div key={c.key} className="card hover-lift p-3 sm:p-5 group">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className={`grid h-[52px] w-[52px] sm:h-[64px] sm:w-[64px] shrink-0 place-items-center rounded-lg sm:rounded-[16px] ${c.tone} transition-transform duration-200 group-hover:scale-105`}>
-                    <img src={c.img} alt={c.label} className="h-full w-full object-contain scale-[1.7]" aria-hidden="true" />
+                    <img src={c.img} alt={c.label} className={`h-full w-full object-contain ${c.imgClass || 'scale-[1.7]'}`} aria-hidden="true" />
                   </span>
                   <div className="min-w-0">
                     <p className="text-2xl sm:text-3xl font-extrabold leading-none text-slate-900 tabular-nums">
