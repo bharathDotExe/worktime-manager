@@ -120,4 +120,4 @@ These credentials can be used to log in and test the live application:
 - **CORS & Rate Limiting:** Enforced on API endpoints to prevent abuse.
 - **Data Integrity:** Database-level constraints ensure no overlapping leave dates and maintain rigorous state control.
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for a full request lifecycle trace.
+See [ARCHITECTURE.md](./elms/ARCHITECTURE.md) for a full request lifecycle trace.
