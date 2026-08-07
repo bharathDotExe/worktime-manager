@@ -55,8 +55,12 @@ export default function Layout({ children, links = [] }) {
   const [notifications, setNotifications] = useState([]);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const notifRef = useRef(null);
-  const profileRef = useRef(null);
+  
+  const mobileNotifRef = useRef(null);
+  const desktopNotifRef = useRef(null);
+  const mobileProfileRef = useRef(null);
+  const desktopProfileRef = useRef(null);
+  
   const isManager = user?.role === "manager";
   const sidebarTone = "bg-[#0B6E4F]";
   const contentWidth = isManager ? "max-w-[1440px]" : "max-w-7xl";
@@ -82,10 +86,19 @@ export default function Layout({ children, links = [] }) {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (notifRef.current && !notifRef.current.contains(event.target)) {
+      const isOutsideNotif = 
+        (!mobileNotifRef.current || !mobileNotifRef.current.contains(event.target)) &&
+        (!desktopNotifRef.current || !desktopNotifRef.current.contains(event.target));
+        
+      if (isOutsideNotif) {
         setIsNotifOpen(false);
       }
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
+      
+      const isOutsideProfile = 
+        (!mobileProfileRef.current || !mobileProfileRef.current.contains(event.target)) &&
+        (!desktopProfileRef.current || !desktopProfileRef.current.contains(event.target));
+        
+      if (isOutsideProfile) {
         setIsProfileOpen(false);
       }
     }
@@ -200,7 +213,7 @@ export default function Layout({ children, links = [] }) {
           <span className="font-display text-base font-bold tracking-tight text-elms-ink">ELMS</span>
           <div className="flex items-center gap-3">
             {/* Bell */}
-            <div className="relative" ref={notifRef}>
+            <div className="relative" ref={mobileNotifRef}>
               <button
                 className="relative text-slate-400 hover:text-slate-600 transition"
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
@@ -255,7 +268,7 @@ export default function Layout({ children, links = [] }) {
               )}
             </div>
             {/* Avatar */}
-            <div className="relative" ref={profileRef}>
+            <div className="relative" ref={mobileProfileRef}>
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="grid h-9 w-9 place-items-center rounded-full bg-[#E7F2EC] text-sm font-bold uppercase text-elms-primary"
@@ -280,7 +293,7 @@ export default function Layout({ children, links = [] }) {
         {/* Desktop-only floating header (unchanged) */}
         <header className={`absolute top-0 inset-x-0 mx-auto w-full ${contentWidth} px-8 pt-8 hidden lg:flex items-center justify-end gap-6 z-30 pointer-events-none`}>
           <div className="pointer-events-auto flex items-center gap-6">
-            <div className="relative" ref={notifRef}>
+            <div className="relative" ref={desktopNotifRef}>
               <button
                 className="relative text-slate-400 hover:text-slate-600 transition"
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
@@ -355,7 +368,7 @@ export default function Layout({ children, links = [] }) {
                 </div>
               )}
             </div>
-            <div className="relative" ref={profileRef}>
+            <div className="relative" ref={desktopProfileRef}>
               <div
                 className="flex items-center gap-3 border-l border-slate-200 pl-6 cursor-pointer"
                 onClick={() => setIsProfileOpen(!isProfileOpen)}

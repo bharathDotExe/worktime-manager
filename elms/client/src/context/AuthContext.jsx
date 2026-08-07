@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
     setTokenState(null);
     setUser(null);
     cacheClear();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   }, [navigate]);
 
   useEffect(() => {
