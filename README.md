@@ -4,6 +4,18 @@
 
 A comprehensive, production-ready web application for managing employee leave requests. ELMS streamlines the process for employees to apply for time off and for managers to review, approve, or reject these requests with full accountability and transparency.
 
+## 📑 Table of Contents
+
+- [🚀 Live Links](#-live-links)
+- [📖 About The Project](#-about-the-project)
+  - [Key Features](#key-features)
+- [💻 Tech Stack](#-tech-stack)
+- [⚙️ Local Setup Instructions](#️-local-setup-instructions)
+- [🔐 Demo Credentials](#-demo-credentials)
+- [🏗️ Architecture & Security](#️-architecture--security)
+
+---
+
 ## 🚀 Live Links
 
 - **Live Application:** [https://elms-zollid.vercel.app/](https://elms-zollid.vercel.app/)
