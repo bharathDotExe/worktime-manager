@@ -79,14 +79,14 @@ npm run dev               # Starts on http://localhost:5173
 
 ---
 
-## 🔐 Sample Credentials
+## 🔐 Demo Credentials
 
-These are provisioned from your `.env` upon running the seed script:
+These credentials can be used to log in and test the live application:
 
 | Role | Username | Password |
 |---|---|---|
-| Manager | `MANAGER_USERNAME` (default: `manager@gcu.in`) | `MANAGER_SEED_PASSWORD` |
-| Demo employee | `DEMO_EMPLOYEE_USERNAME` (default: `employee@gcu.in`) | `DEMO_EMPLOYEE_PASSWORD` |
+| Manager | `manager@gcu.in` | `manager@2706` |
+| Employee | `employee@gcu.in` | `employee@2706` |
 
 *Note: There is no way to create a manager through the UI or the API for security reasons. Managers can only be seeded by administrators.*
 
