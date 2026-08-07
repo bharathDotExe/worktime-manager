@@ -14,7 +14,7 @@ const app = express();
 // Correct client IPs behind a proxy so rate limiting works.
 app.set("trust proxy", 1);
 
-app.use(helmet({ crossOriginResourcePolicy: { policy: "same-site" } }));
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 // Exact origin only — never "*".
 app.use(cors({ origin: env.corsOrigin, credentials: true }));
 app.use(express.json({ limit: "100kb" }));
