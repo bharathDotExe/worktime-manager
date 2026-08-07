@@ -1,234 +1,111 @@
 # ELMS — Employee Leave Management System
 
-A production-shaped leave management app: employees apply for leave with a
-supporting document; a single pre-seeded manager reviews and approves/rejects
-with mandatory remarks.
+![ELMS Dashboard](./client/src/assets/app-dashboard.png)
 
-**Every rule is enforced on the backend.** The React app is a convenience
-layer; assume it can be bypassed with curl and the API still holds.
+A comprehensive, production-ready web application for managing employee leave requests. ELMS streamlines the process for employees to apply for time off and for managers to review, approve, or reject these requests with full accountability and transparency.
+
+## 🚀 Live Links
+
+- **Live Application:** [https://elms-zollid.vercel.app/](https://elms-zollid.vercel.app/)
+- **Figma Design:** [View Design File](https://www.figma.com/design/3vu2uwmhYoH0eSFxP3b1EP/elms?node-id=0-1&t=L8DtpLKx2qYovIHJ-1)
 
 ---
 
-## Tech stack
+## 📖 About The Project
+
+![Leave Workflow](./client/src/assets/workflow.png)
+
+ELMS provides a complete workflow for leave management:
+- **Employees** can register, apply for leave, upload supporting documents (e.g., medical certificates), and track the status of their requests.
+- **Managers** have a dedicated portal to view all pending requests across the organization, review attached documents, and make decisions with mandatory remarks.
+
+The focus of this project is on building a functional application with clean code, secure role-based access control, and an exceptional user experience with dynamic notifications.
+
+### Key Features
+- **Role-Based Access Control (RBAC):** Distinct portals for Employees and Managers.
+- **Secure Authentication:** JWT-based stateless authentication with password hashing.
+- **Leave Application & Document Upload:** Submit requests with dates, reasons, and file attachments.
+- **Real-time Notifications:** In-app toast notifications to alert employees when a request's status changes.
+- **Manager Dashboard:** Comprehensive view for managers to evaluate requests efficiently.
+
+---
+
+## 💻 Tech Stack
 
 | Layer | Choice |
 |---|---|
 | Frontend | React 18 + Vite, React Router, Tailwind CSS |
 | Backend | Node.js + Express 4 |
-| Database | PostgreSQL (Supabase-compatible connection string) |
-| Auth | JWT access token + bcrypt (cost 12) |
+| Database | PostgreSQL (Supabase) |
+| Auth | JWT access token + bcrypt |
 | Uploads | Multer, disk storage |
-| Validation | Zod (`.strict()` — extra fields rejected) |
-| Security | helmet, cors (exact origin), express-rate-limit |
-| Tests | Jest + Supertest |
+| Validation | Zod |
 
 ---
 
-## Architecture
-
-```
- Browser (React SPA, :5173)
-   │  Authorization: Bearer <JWT>   (axios request interceptor)
-   ▼
- Express API (:4000)
-   helmet → cors(exact origin) → json/urlencoded
-     └─ /api/auth      register | login (rate-limited) | me
-     └─ /api/leaves    authenticate → requireRole(...) → controller
-     └─ /api/employees authenticate → requireRole('manager')
-   errorHandler (logs detail, returns { error })
-   │                              │
-   ▼                              ▼
- PostgreSQL (pg pool,        server/uploads/  (NOT static;
- parameterized SQL)           served only via gated route)
-```
-
-Request path for any protected call:
-`route → authenticate (verify JWT) → requireRole → Zod validation →
-model (parameterized SQL) → JSON response`.
-
----
-
-## Setup
+## ⚙️ Local Setup Instructions
 
 > Using your own Supabase project? Follow **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)**
 > for the connection string, env values, migration and troubleshooting.
 
-
-
+### 1. Clone the repository
 ```bash
-git clone <repo> && cd elms
+git clone <repo>
+cd elms
+```
 
-# 1. Backend env
+### 2. Backend Setup
+```bash
 cd server
-cp .env.example .env      # fill DATABASE_URL, JWT_SECRET, MANAGER_SEED_PASSWORD
+cp .env.example .env      # Fill in DATABASE_URL, JWT_SECRET, MANAGER_SEED_PASSWORD
 npm install
 
-# 2. Schema + seed
-# 2. Schema + seed
-npm run db:check          # verifies DATABASE_URL reaches your Postgres
-npm run schema            # applies schema.sql
-npm run seed              # creates the single manager (+ optional demo employee)
+# Setup Database & Seed Data
+npm run db:check          # Verifies DATABASE_URL reaches your Postgres
+npm run schema            # Applies schema.sql
+npm run seed              # Creates the single manager (+ optional demo employee)
 
-
-# 3. Run the API
-npm run dev               # http://localhost:4000
-
-# 4. Frontend
-cd ../client
-cp .env.example .env      # VITE_API_URL=http://localhost:4000/api
-npm install
-npm run dev               # http://localhost:5173
+# Run the API server
+npm run dev               # Starts on http://localhost:4000
 ```
 
-Generate a real secret: `openssl rand -hex 64`.
-
-### Tests
-
+### 3. Frontend Setup
 ```bash
-cd server && npm test
+cd ../client
+cp .env.example .env      # Set VITE_API_URL=http://localhost:4000/api
+npm install
+npm run dev               # Starts on http://localhost:5173
 ```
-Point `DATABASE_URL` at a throwaway/test database — the suite creates and
-deletes its own user rows and requires `MANAGER_SEED_PASSWORD` to match the
-seeded manager.
 
 ---
 
-## Sample credentials
+## 🔐 Sample Credentials
 
-These come from **your `.env`**, not from the repo — nothing is hardcoded.
+These are provisioned from your `.env` upon running the seed script:
 
 | Role | Username | Password |
 |---|---|---|
-| Manager | `MANAGER_USERNAME` (default `manager@gcu.in`) | `MANAGER_SEED_PASSWORD` |
-| Demo employee | `DEMO_EMPLOYEE_USERNAME` (default `employee@gcu.in`) | `DEMO_EMPLOYEE_PASSWORD` |
+| Manager | `MANAGER_USERNAME` (default: `manager@gcu.in`) | `MANAGER_SEED_PASSWORD` |
+| Demo employee | `DEMO_EMPLOYEE_USERNAME` (default: `employee@gcu.in`) | `DEMO_EMPLOYEE_PASSWORD` |
 
-Any other employee can self-register at `/register`. **There is no way to
-create a manager through the UI or the API** — `POST /api/auth/register`
-hardcodes `role='employee'` in SQL, the Zod schema rejects a `role` field
-outright, and a partial unique index in `schema.sql` allows at most one
-manager row.
+*Note: There is no way to create a manager through the UI or the API for security reasons. Managers can only be seeded by administrators.*
 
 ---
 
-## API contract
+## 🏗️ Architecture & Security
 
-**Auth**
-- `POST /api/auth/register` — public, `{ username, password }` → `{ token, role, username }` (always employee)
-- `POST /api/auth/login` — public, rate-limited 5/15min/IP → `{ token, role, username }`
-- `GET /api/auth/me` — bearer → `{ id, username, role }`
+### System Architecture
+![System Architecture](./client/src/assets/architecture.png)
 
-**Employee** (`requireRole('employee')`)
-- `POST /api/leaves` — multipart `reason, start_date, end_date, document`
-- `GET /api/leaves/mine` — own requests only (filtered in SQL)
-- `GET /api/leaves/notifications` — `status <> 'pending' AND notified = false`
-- `POST /api/leaves/notifications/ack` — `{ ids: [] }` → `notified = true`
+### Database Schema
+![Database Schema](./client/src/assets/database.png)
 
-**Manager** (`requireRole('manager')`)
-- `GET /api/employees`
-- `GET /api/leaves?status=pending`
-- `PATCH /api/leaves/:id` — `{ status, manager_remarks }` (remarks mandatory)
+**Every rule is enforced on the backend.** The React app is a convenience layer; assume it can be bypassed with `curl` and the API still holds.
 
-**Shared, ownership-checked**
-- `GET /api/leaves/:id/document` — manager or owning employee only
-
----
-
-## Security notes (OWASP checklist)
-
-- [x] **Passwords** bcrypt-hashed, cost ≥ 12; never logged or returned. Login runs a dummy compare on unknown usernames so timing doesn't leak account existence.
-- [x] **JWT secret** read from `JWT_SECRET`; the server refuses to boot without it. No fallback literal anywhere.
-- [x] **Manager routes** all chain `authenticate, requireRole('manager')`.
-- [x] **Ownership** enforced in SQL (`WHERE employee_id = $1`), never by filtering a fetch-all in JS. The ack update is likewise scoped to the caller's rows.
-- [x] **No client-supplied role or user id** — identity is always `req.user` from the verified token; Zod `.strict()` rejects an injected `role`/`employee_id`.
-- [x] **All SQL parameterized** (`$1, $2, …`); no interpolation of user input.
-- [x] **Uploads** MIME-whitelisted (PDF/PNG/JPEG), size-capped by `MAX_UPLOAD_MB`, stored as `crypto.randomUUID() + ext` — the client filename is kept only as a display label.
-- [x] **Files served only** through `GET /api/leaves/:id/document` behind auth + ownership; `uploads/` is never mounted with `express.static`. Responses set `X-Content-Type-Options: nosniff`.
-- [x] **CORS** locked to `CORS_ORIGIN`; never `*`.
-- [x] **Helmet** enabled globally.
-- [x] **Rate limiting** on login (5/15min) and register (10/hour) per IP.
-- [x] **Errors** logged in full server-side; clients get `{ error }` and a generic "Internal server error" for 5xx.
-- [x] **Secrets** — `.env` is gitignored; only `.env.example` placeholders are committed.
-
----
-
-## Design decisions
-
-**Why JWT?** The API is stateless and the SPA lives on a different origin from
-the API, so a bearer token avoids cross-site cookie friction and lets any
-future mobile client reuse the same endpoints. Expiry is short (`2h`).
-
-**sessionStorage vs HttpOnly cookie.** The token is held in a module-scope
-variable and mirrored to `sessionStorage`. `sessionStorage` dies with the tab
-and isn't shared across tabs, which is better than `localStorage` — but it is
-still readable by JavaScript, so an XSS bug means token theft. An HttpOnly,
-`SameSite=Strict`, `Secure` cookie would be immune to XSS exfiltration at the
-cost of needing CSRF protection and same-site deployment. For this scope
-(single origin pair, short expiry, no third-party scripts) sessionStorage is
-the pragmatic pick; the cookie approach is the correct upgrade for production
-with real user data.
-
-**Why disk storage for uploads?** At this scope a single API instance serves
-the files, so local disk plus a gated streaming route is the simplest thing
-that is actually secure — no public bucket, no signed-URL leakage. All file
-access flows through one function (`leaves.controller.document`), so swapping
-in S3/Supabase Storage later means changing `upload.js` and that one reader,
-nothing else.
-
-**Why role is never client-supplied.** Role is an authorization claim, not user
-input. It is written once by `createEmployee` (hardcoded literal) or by
-`seed.js`, read back only from a signature-verified JWT, and constrained by a
-DB `CHECK` plus a single-manager unique index. Three independent layers must
-fail before privilege escalation is possible.
-
-**Why this schema.** `leave_requests` carries its own `status`, `reviewed_by`,
-and `manager_remarks` rather than a separate approvals table — a request has
-exactly one terminal decision, so a second table would add joins with no gain.
-`notified` implements exactly-once toasting without a notifications table:
-reviewing sets it back to `false`, the client acks it to `true`. The
-`CHECK (end_date >= start_date)` and status check live in the database so bad
-rows are impossible even if application code regresses.
+- **Passwords:** bcrypt-hashed, cost ≥ 12.
+- **Ownership:** Enforced in SQL (`WHERE employee_id = $1`), never by filtering a fetch-all in JS.
+- **Uploads:** MIME-whitelisted (PDF/PNG/JPEG), size-capped, and served securely behind auth + ownership checks.
+- **CORS & Rate Limiting:** Enforced on API endpoints to prevent abuse.
+- **Data Integrity:** Database-level constraints ensure no overlapping leave dates and maintain rigorous state control.
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for a full request lifecycle trace.
-
----
-
-## Extended schema (v2) — `server/migrations/002_extended_schema.sql`
-
-The core two tables run the apply/approve flow. This additive, idempotent
-migration is what makes it look like a system a real HR team would run:
-
-| Object | Why it exists |
-|---|---|
-| `departments`, `users.full_name/is_active/joined_on` | Real org data; deactivate instead of deleting users |
-| `leave_types` | Annual / sick / casual / unpaid, each with entitlement + "document required" |
-| `leave_balances` | Per employee, per type, per year ledger (`entitled_days`, `used_days`) |
-| `holidays` + `working_days(start, end)` | Weekends and company holidays don't burn balance |
-| `leave_no_overlap` EXCLUDE constraint | The database refuses two overlapping pending/approved requests |
-| `audit_logs` | Append-only: who did what, when, from which IP |
-| `sessions` | Hashed refresh tokens → short access tokens and real server-side logout |
-| `set_updated_at()` trigger | `updated_at` is no longer trusted to application code |
-| `leave_requests_expanded` view | One read for the manager queue: employee, department, type, working days |
-| `uniq_users_username_ci` | `Alice` and `alice` can never be two accounts |
-
-Apply it after `npm run schema`:
-
-```bash
-psql "$DATABASE_URL" -f migrations/002_extended_schema.sql
-```
-
-### Architecture improvements worth doing next (in priority order)
-
-1. **Access + refresh tokens.** 15-minute access token, refresh token hashed
-   into `sessions`; logout revokes the row. Removes the "token valid for 2h
-   after logout" gap.
-2. **Balance enforcement in a transaction.** On approval: `BEGIN` → lock the
-   balance row `FOR UPDATE` → check `entitled - used >= working_days` → update
-   both rows → `COMMIT`. Prevents double-spend under concurrent approvals.
-3. **Write an audit row inside the same transaction** as every state change, so
-   history can never disagree with data.
-4. **Structured logging + request IDs** (pino) and a `/healthz` endpoint.
-5. **Object storage for documents** (S3/Supabase Storage + short-lived signed
-   URLs) so the API can scale past one instance — swap `upload.js` only.
-6. **Background job** for year-end balance rollover and carry-forward caps.
-7. **CI**: GitHub Actions running `npm test` against a throwaway Postgres
-   service container; that plus this README is what reviewers actually look at.
