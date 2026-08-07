@@ -672,32 +672,32 @@ export default function LeaveRequests() {
   return (
     <Layout links={MANAGER_LINKS}>
     <div className="pb-8">
-      <div className="mb-6 flex items-start justify-between gap-4">
+      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="min-w-0">
-          <h1 className="font-display text-[26px] font-bold tracking-tight text-elms-ink">Manager Dashboard</h1>
-          <p className="mt-1.5 text-[14px] font-medium text-slate-500">
-            Welcome back, <span className="font-semibold text-slate-700">{user?.username?.split(" ")[0] || "Manager"}</span>. Here is an overview of your team&apos;s leave activity.
+          <h1 className="font-display text-[22px] sm:text-[26px] font-bold tracking-tight text-elms-ink">Manager Dashboard</h1>
+          <p className="mt-1 text-[13px] sm:text-[14px] font-medium text-slate-500">
+            Welcome back, <span className="font-semibold text-slate-700">{user?.username?.split(" ")[0] || "Manager"}</span>. Here is your team&apos;s leave activity.
           </p>
         </div>
         {counts.pending > 0 && (
-          <div className="shrink-0 flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-2.5">
-            <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-            <span className="text-[13px] font-semibold text-amber-700">
-              {counts.pending} pending {counts.pending === 1 ? "request" : "requests"} need review
+          <div className="self-start flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 sm:px-4 sm:py-2.5">
+            <span className="flex h-2 w-2 shrink-0 rounded-full bg-amber-500 animate-pulse" />
+            <span className="text-[12px] sm:text-[13px] font-semibold text-amber-700">
+              {counts.pending} pending {counts.pending === 1 ? "request" : "requests"}
             </span>
           </div>
         )}
       </div>
 
-      <div className="flex flex-col gap-6 xl:gap-8 items-stretch">
-        <div className="space-y-6 xl:space-y-8">
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="flex flex-col gap-5 xl:gap-8 items-stretch">
+        <div className="space-y-5 xl:space-y-8">
+          <section className="grid gap-3 grid-cols-2 lg:grid-cols-4">
             {TILES.map((t) => (
               <div
                 key={t.key}
-                className="group flex items-center gap-3 xl:gap-4 rounded-[16px] border border-[#E2E8F5] bg-white p-4 shadow-[0_2px_12px_rgba(22,55,120,0.03)] hover:shadow-[0_4px_20px_rgba(22,55,120,0.07)] transition-shadow"
+                className="group flex items-center gap-2 sm:gap-3 xl:gap-4 rounded-[14px] sm:rounded-[16px] border border-[#E2E8F5] bg-white p-3 sm:p-4 shadow-[0_2px_12px_rgba(22,55,120,0.03)] hover:shadow-[0_4px_20px_rgba(22,55,120,0.07)] transition-shadow"
               >
-                <span className={`grid h-[64px] w-[64px] shrink-0 place-items-center rounded-[16px] ${t.tone} transition-transform duration-200 group-hover:scale-105`}>
+                <span className={`grid h-[44px] w-[44px] sm:h-[56px] sm:w-[56px] xl:h-[64px] xl:w-[64px] shrink-0 place-items-center rounded-[10px] sm:rounded-[14px] xl:rounded-[16px] ${t.tone} transition-transform duration-200 group-hover:scale-105`}>
                   <img
                     src={t.img}
                     alt={t.label}
@@ -707,23 +707,23 @@ export default function LeaveRequests() {
                 </span>
                 <div className="min-w-0">
                   {loading ? (
-                    <div className="space-y-2 animate-pulse">
-                      <div className="h-6 w-10 rounded bg-slate-100" />
-                      <div className="h-3 w-20 rounded bg-slate-100" />
+                    <div className="space-y-1.5 animate-pulse">
+                      <div className="h-5 w-8 rounded bg-slate-100" />
                       <div className="h-2.5 w-16 rounded bg-slate-100" />
+                      <div className="h-2 w-12 rounded bg-slate-100" />
                     </div>
                   ) : (
                     <>
-                      <p className="text-[24px] xl:text-[26px] font-extrabold leading-none text-elms-ink tabular-nums">
+                      <p className="text-[18px] sm:text-[22px] xl:text-[26px] font-extrabold leading-none text-elms-ink tabular-nums">
                         {counts[t.key] ?? 0}
                       </p>
-                      <p className="mt-1.5 text-[12.5px] xl:text-[13px] font-semibold text-slate-700">{t.label}</p>
+                      <p className="mt-1 text-[10px] sm:text-[12px] xl:text-[13px] font-semibold text-slate-700 leading-tight">{t.label}</p>
                       {t.isPending ? (
-                        <span className="mt-0.5 inline-block rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-700">
-                          Requires Action
+                        <span className="mt-0.5 inline-block rounded-full bg-amber-100 px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wide text-amber-700">
+                          Action
                         </span>
                       ) : (
-                        <p className="mt-0.5 text-[11px] text-slate-400">{t.sub}</p>
+                        <p className="mt-0.5 text-[9px] sm:text-[11px] text-slate-400">{t.sub}</p>
                       )}
                     </>
                   )}
@@ -732,44 +732,112 @@ export default function LeaveRequests() {
             ))}
           </section>
 
-          <section className="rounded-[16px] border border-[#E2E8F5] bg-white shadow-[0_2px_12px_rgba(22,55,120,0.03)] overflow-hidden">
+          <section className="rounded-[14px] sm:rounded-[16px] border border-[#E2E8F5] bg-white shadow-[0_2px_12px_rgba(22,55,120,0.03)] overflow-hidden">
             {/* Header */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E2E8F5] px-6 py-4 xl:py-5">
-              <div className="flex items-center gap-3">
-                <h2 className="text-[17px] font-bold text-elms-ink">Recent Employee Leave Requests</h2>
+            <div className="flex flex-col gap-3 border-b border-[#E2E8F5] px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-6 sm:py-4 xl:py-5">
+              <div className="flex items-center gap-2">
+                <h2 className="text-[15px] sm:text-[17px] font-bold text-elms-ink">Leave Requests</h2>
                 {!loading && leaves.length > 0 && (
                   <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-500">
                     {leaves.length}
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* Filter tabs */}
-                <div className="flex items-center gap-1 rounded-lg border border-[#E2E8F5] bg-slate-50 p-1">
-                  {FILTERS.map((f) => (
-                    <button
-                      key={f}
-                      onClick={() => setFilter(f)}
-                      className={`rounded-md px-3 py-1 text-[12px] font-semibold capitalize transition-colors ${
-                        filter === f
-                          ? "bg-white text-elms-ink shadow-sm border border-[#E2E8F5]"
-                          : "text-slate-500 hover:text-slate-700"
-                      }`}
-                    >
-                      {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
-                      {f === "pending" && counts.pending > 0 && (
-                        <span className="ml-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[9px] font-bold text-white">
-                          {counts.pending}
-                        </span>
-                      )}
-                    </button>
-                  ))}
-                </div>
+              {/* Filter tabs */}
+              <div className="flex items-center gap-1 rounded-lg border border-[#E2E8F5] bg-slate-50 p-1 self-start">
+                {FILTERS.map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className={`rounded-md px-2.5 py-1 text-[11px] sm:text-[12px] font-semibold capitalize transition-colors ${
+                      filter === f
+                        ? "bg-white text-elms-ink shadow-sm border border-[#E2E8F5]"
+                        : "text-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
+                    {f === "pending" && counts.pending > 0 && (
+                      <span className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[9px] font-bold text-white">
+                        {counts.pending}
+                      </span>
+                    )}
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px] text-left text-[14px]">
+            {/* Mobile card list */}
+            <div className="md:hidden">
+              {loading ? (
+                <div className="divide-y divide-slate-100">
+                  {[1,2,3].map(i => (
+                    <div key={i} className="animate-pulse flex items-center gap-3 px-4 py-4">
+                      <div className="h-10 w-10 rounded-full bg-slate-100 shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3 w-32 rounded bg-slate-100" />
+                        <div className="h-2.5 w-20 rounded bg-slate-100" />
+                      </div>
+                      <div className="h-5 w-16 rounded-full bg-slate-100" />
+                    </div>
+                  ))}
+                </div>
+              ) : empty ? (
+                <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                  <div className="mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-slate-100">
+                    <svg viewBox="0 0 24 24" className="h-7 w-7 text-slate-400" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M8 14h4M8 18h2" /></svg>
+                  </div>
+                  <p className="text-sm font-semibold text-slate-700">{filter === "all" ? "No leave requests yet" : `No ${filter} requests`}</p>
+                  <p className="mt-1 text-xs text-slate-400">Requests will appear here once submitted.</p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-slate-100">
+                  {leaves.map((l) => (
+                    <li
+                      key={l.id}
+                      className="px-4 py-3.5 cursor-pointer hover:bg-slate-50 active:bg-slate-100 transition-colors"
+                      onClick={() => setActive(l)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === "Enter" && setActive(l)}
+                      aria-label={`Review leave request from ${l.employee_username}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar name={l.employee_username} />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="truncate text-[13px] font-bold text-elms-ink">{l.employee_username}</p>
+                            <span className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                              l.status === "approved" ? "bg-[#E6F8F0] text-[#0B6E4F]" :
+                              l.status === "pending"  ? "bg-[#FFF4E5] text-[#C98A1E]" :
+                              "bg-[#F8E9E8] text-[#B23B34]"
+                            }`}>
+                              <span className={`h-1.5 w-1.5 rounded-full ${
+                                l.status === "approved" ? "bg-[#0B6E4F]" :
+                                l.status === "pending"  ? "bg-[#C98A1E]" :
+                                "bg-[#B23B34]"
+                              }`} />
+                              {l.status.charAt(0).toUpperCase() + l.status.slice(1)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[11px] text-slate-500">{leaveTypeFromReason(l.reason)}</span>
+                            <span className="text-slate-300">•</span>
+                            <span className="text-[11px] text-slate-500">{fmt(l.start_date)} — {fmt(l.end_date)}</span>
+                            <span className="text-slate-300">•</span>
+                            <span className="text-[11px] font-medium text-slate-600">{days(l.start_date, l.end_date)}</span>
+                          </div>
+                        </div>
+                        <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-slate-300" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full min-w-[700px] text-left text-[14px]">
                 <thead className="border-b border-[#E2E8F5] bg-slate-50/60 text-[12px] font-semibold uppercase tracking-wide text-slate-500">
                   <tr>
                     <th className="px-6 py-3.5 whitespace-nowrap">Employee</th>
@@ -857,12 +925,12 @@ export default function LeaveRequests() {
             </div>
 
             {!loading && !empty && (
-              <div className="flex items-center justify-between border-t border-[#E2E8F5] px-6 py-3.5 text-[12px] text-slate-500 bg-slate-50/40">
+              <div className="flex items-center justify-between border-t border-[#E2E8F5] px-4 sm:px-6 py-3 text-[12px] text-slate-500 bg-slate-50/40">
                 <span className="font-medium">
                   Showing <span className="font-bold text-slate-700">{leaves.length}</span> {leaves.length === 1 ? "request" : "requests"}
-                  {filter !== "all" && <> with status <span className="font-bold text-slate-700 capitalize">{filter}</span></>}
+                  {filter !== "all" && <> — <span className="font-bold text-slate-700 capitalize">{filter}</span></>}
                 </span>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   <button className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors" aria-label="Previous page">
                     <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </button>

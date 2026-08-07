@@ -303,11 +303,11 @@ export default function Dashboard() {
   return (
     <Layout links={EMPLOYEE_LINKS}>
       {/* Page header */}
-      <div className="flex items-start justify-between gap-4 sm:items-center">
+      <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="truncate text-2xl font-bold tracking-tight text-slate-900">Dashboard</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            A summary of all your leave requests and their current status.
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+          <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+            Your leave requests and status.
           </p>
         </div>
         <Link
@@ -325,28 +325,28 @@ export default function Dashboard() {
       )}
 
       {/* Stat cards */}
-      <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
+      <div className="mt-5 grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-4">
         {loading
           ? CARDS.map((c) => <CardSkeleton key={c.key} />)
           : CARDS.map((c) => (
-              <div key={c.key} className="card hover-lift p-3 sm:p-5 group">
+              <div key={c.key} className="card hover-lift p-2.5 sm:p-5 group">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <span className={`grid h-[52px] w-[52px] sm:h-[64px] sm:w-[64px] shrink-0 place-items-center rounded-lg sm:rounded-[16px] ${c.tone} transition-transform duration-200 group-hover:scale-105`}>
+                  <span className={`grid h-[42px] w-[42px] sm:h-[56px] sm:w-[56px] xl:h-[64px] xl:w-[64px] shrink-0 place-items-center rounded-lg sm:rounded-[16px] ${c.tone} transition-transform duration-200 group-hover:scale-105`}>
                     <img src={c.img} alt={c.label} className={`h-full w-full object-contain ${c.imgClass || 'scale-[1.7]'}`} aria-hidden="true" />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-2xl sm:text-3xl font-extrabold leading-none text-slate-900 tabular-nums">
+                    <p className="text-xl sm:text-3xl font-extrabold leading-none text-slate-900 tabular-nums">
                       {stats?.[c.key] ?? 0}
                     </p>
-                    <p className="mt-1 text-[11px] sm:text-sm font-semibold text-slate-700 leading-tight">
+                    <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-sm font-semibold text-slate-700 leading-tight">
                       {c.label}
                     </p>
                     {c.key === "pending" ? (
-                      <span className="mt-0.5 inline-block rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-700">
-                        Awaiting Review
+                      <span className="mt-0.5 inline-block rounded-full bg-amber-100 px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wide text-amber-700">
+                        Awaiting
                       </span>
                     ) : (
-                      <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5">{c.sub}</p>
+                      <p className="hidden sm:block text-[10px] sm:text-xs text-slate-400 mt-0.5">{c.sub}</p>
                     )}
                   </div>
                 </div>
@@ -354,8 +354,8 @@ export default function Dashboard() {
             ))}
       </div>
 
-      {/* Main content grid */}
-      <div className="mt-6 grid gap-6 xl:grid-cols-[2fr_1fr]">
+      {/* Main content grid — side panel comes FIRST on mobile for quick actions */}
+      <div className="mt-5 grid gap-5 xl:grid-cols-[2fr_1fr]">
 
         {/* Recent Requests */}
         <section className="card p-0">
