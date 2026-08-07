@@ -192,15 +192,6 @@ Implement exactly these routes:
 
 Build this now, starting with the database schema and backend auth/RBAC (the highest-scrutiny parts), then leave requests + uploads, then the manager flow, then the frontend, then security hardening and tests.
 
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/842c34d4-8ed9-477b-8829-ed6555e3a9e2).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
