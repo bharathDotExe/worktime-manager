@@ -1,6 +1,6 @@
 # ELMS — Employee Leave Management System
 
-![ELMS Dashboard](./client/src/assets/app-dashboard.png)
+![ELMS Dashboard](./elms/client/src/assets/app-dashboard.png)
 
 A comprehensive, production-ready web application for managing employee leave requests. ELMS streamlines the process for employees to apply for time off and for managers to review, approve, or reject these requests with full accountability and transparency.
 
@@ -13,7 +13,7 @@ A comprehensive, production-ready web application for managing employee leave re
 
 ## 📖 About The Project
 
-![Leave Workflow](./client/src/assets/workflow.png)
+![Leave Workflow](./elms/client/src/assets/workflow.png)
 
 ELMS provides a complete workflow for leave management:
 - **Employees** can register, apply for leave, upload supporting documents (e.g., medical certificates), and track the status of their requests.
@@ -95,10 +95,10 @@ These are provisioned from your `.env` upon running the seed script:
 ## 🏗️ Architecture & Security
 
 ### System Architecture
-![System Architecture](./client/src/assets/architecture.png)
+![System Architecture](./elms/client/src/assets/architecture.png)
 
 ### Database Schema
-![Database Schema](./client/src/assets/database.png)
+![Database Schema](./elms/client/src/assets/database.png)
 
 **Every rule is enforced on the backend.** The React app is a convenience layer; assume it can be bypassed with `curl` and the API still holds.
 
