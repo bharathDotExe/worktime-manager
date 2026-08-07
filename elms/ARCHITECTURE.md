@@ -1,4 +1,4 @@
-# Architecture — one request end to end
+# Architecture — One Request End-to-End
 
 ## Scenario: a manager approves leave request #42
 
