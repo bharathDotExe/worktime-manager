@@ -802,10 +802,10 @@ export default function LeaveRequests() {
                       aria-label={`Review leave request from ${l.employee_username}`}
                     >
                       <div className="flex items-center gap-3">
-                        <Avatar name={l.employee_username} />
+                        <Avatar name={l.employee_full_name || l.employee_username} />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
-                            <p className="truncate text-[13px] font-bold text-elms-ink">{l.employee_username}</p>
+                            <p className="truncate text-[13px] font-bold text-elms-ink">{l.employee_full_name || l.employee_username}</p>
                             <span className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                               l.status === "approved" ? "bg-[#E6F8F0] text-[#0B6E4F]" :
                               l.status === "pending"  ? "bg-[#FFF4E5] text-[#C98A1E]" :
@@ -868,13 +868,13 @@ export default function LeaveRequests() {
                         {/* Employee */}
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <Avatar name={l.employee_username} />
+                            <Avatar name={l.employee_full_name || l.employee_username} />
                             <div className="min-w-0 max-w-[160px]">
-                              <p className="truncate text-[14px] font-bold text-elms-ink" title={l.employee_username}>
-                                {l.employee_username}
+                              <p className="truncate text-[14px] font-bold text-elms-ink" title={l.employee_full_name || l.employee_username}>
+                                {l.employee_full_name || l.employee_username}
                               </p>
                               <p className="truncate text-[12px] font-medium text-slate-500">
-                                {l.employee_email || "Employee"}
+                                {l.employee_department || l.employee_username}
                               </p>
                             </div>
                           </div>

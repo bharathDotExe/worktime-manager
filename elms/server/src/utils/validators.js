@@ -10,6 +10,15 @@ const credentialsSchema = z
   })
   .strict();
 
+const registerSchema = z
+  .object({
+    username: z.string().trim().min(3).max(100),
+    password: z.string().min(8).max(200),
+    full_name: z.string().trim().min(2).max(255).optional(),
+    department: z.string().trim().min(2).max(100).optional(),
+  })
+  .strict();
+
 const isoDate = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD")
@@ -66,6 +75,7 @@ function parseOrThrow(schema, data) {
 
 module.exports = {
   credentialsSchema,
+  registerSchema,
   createLeaveSchema,
   reviewLeaveSchema,
   ackSchema,

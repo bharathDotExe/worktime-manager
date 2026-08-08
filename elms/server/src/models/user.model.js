@@ -12,7 +12,7 @@ async function findByUsername(username) {
 
 async function findById(id) {
   const { rows } = await query(
-    `SELECT id, username, role, created_at FROM users WHERE id = $1`,
+    `SELECT id, username, full_name, department, role, created_at FROM users WHERE id = $1`,
     [id],
   );
   return rows[0] || null;
@@ -22,12 +22,12 @@ async function findById(id) {
  * Creates an EMPLOYEE. The role is hardcoded here on purpose — no caller can
  * pass a role, so the API can never mint a manager.
  */
-async function createEmployee(username, passwordHash) {
+async function createEmployee(username, passwordHash, fullName = null, department = null) {
   const { rows } = await query(
-    `INSERT INTO users (username, password_hash, role)
-     VALUES ($1, $2, 'employee')
-     RETURNING id, username, role, created_at`,
-    [username, passwordHash],
+    `INSERT INTO users (username, password_hash, role, full_name, department)
+     VALUES ($1, $2, 'employee', $3, $4)
+     RETURNING id, username, full_name, department, role, created_at`,
+    [username, passwordHash, fullName, department],
   );
   return rows[0];
 }
@@ -36,6 +36,8 @@ async function listEmployees() {
   const { rows } = await query(
     `SELECT u.id,
             u.username,
+            u.full_name,
+            u.department,
             u.created_at,
             COUNT(l.id)::int AS total_requests,
             COUNT(l.id) FILTER (WHERE l.status = 'pending')::int AS pending_requests

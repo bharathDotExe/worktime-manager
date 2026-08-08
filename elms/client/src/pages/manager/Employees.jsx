@@ -43,6 +43,8 @@ export default function Employees() {
       result = result.filter(e => 
         e.username.toLowerCase().includes(lowerQuery) || 
         String(e.id).includes(lowerQuery) ||
+        (e.full_name && e.full_name.toLowerCase().includes(lowerQuery)) ||
+        (e.department && e.department.toLowerCase().includes(lowerQuery)) ||
         formatName(e.username).toLowerCase().includes(lowerQuery)
       );
     }
@@ -53,8 +55,8 @@ export default function Employees() {
         let bVal = b[sortConfig.key];
         
         if (sortConfig.key === 'name') {
-          aVal = formatName(a.username);
-          bVal = formatName(b.username);
+          aVal = a.full_name || formatName(a.username);
+          bVal = b.full_name || formatName(b.username);
         }
         
         if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
@@ -141,6 +143,7 @@ export default function Employees() {
                         </div>
                       </div>
                     </td>
+                    <td className="px-6 py-4"><div className="h-4 w-24 bg-slate-100 rounded animate-pulse"></div></td>
                     <td className="px-6 py-4"><div className="h-6 w-16 bg-slate-100 rounded-md animate-pulse"></div></td>
                     <td className="px-6 py-4"><div className="h-4 w-20 bg-slate-100 rounded animate-pulse"></div></td>
                     <td className="px-6 py-4"><div className="h-4 w-12 bg-slate-100 rounded animate-pulse"></div></td>
@@ -193,11 +196,11 @@ export default function Employees() {
             <article key={e.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm relative group overflow-hidden">
               <div className="flex min-w-0 items-center gap-4">
                 <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#E7F2EC] text-sm font-bold uppercase text-[#0B6E4F]">
-                  {e.username.slice(0, 2)}
+                  {(e.full_name || e.username).slice(0, 2)}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate font-bold text-slate-900">{formatName(e.username)}</p>
-                  <p className="truncate text-xs font-medium text-slate-500 mt-0.5">{e.username}</p>
+                  <p className="truncate font-bold text-slate-900">{e.full_name || formatName(e.username)}</p>
+                  <p className="truncate text-xs font-medium text-slate-500 mt-0.5">{e.department || e.username}</p>
                 </div>
               </div>
               <div className="mt-5 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4 text-sm">
@@ -229,6 +232,9 @@ export default function Employees() {
                   <th className="px-6 py-4 font-bold cursor-pointer hover:bg-slate-100 transition-colors group/th select-none" onClick={() => handleSort('name')}>
                     <div className="flex items-center gap-2">Employee <ArrowUpDown className={`h-3.5 w-3.5 transition-opacity ${sortConfig.key === 'name' ? 'opacity-100 text-[#0B6E4F]' : 'opacity-0 group-hover/th:opacity-100 text-slate-400'}`} /></div>
                   </th>
+                  <th className="px-6 py-4 font-bold cursor-pointer hover:bg-slate-100 transition-colors group/th select-none" onClick={() => handleSort('department')}>
+                    <div className="flex items-center gap-2">Department <ArrowUpDown className={`h-3.5 w-3.5 transition-opacity ${sortConfig.key === 'department' ? 'opacity-100 text-[#0B6E4F]' : 'opacity-0 group-hover/th:opacity-100 text-slate-400'}`} /></div>
+                  </th>
                   <th className="px-6 py-4 font-bold cursor-pointer hover:bg-slate-100 transition-colors group/th select-none" onClick={() => handleSort('id')}>
                     <div className="flex items-center gap-2">ID <ArrowUpDown className={`h-3.5 w-3.5 transition-opacity ${sortConfig.key === 'id' ? 'opacity-100 text-[#0B6E4F]' : 'opacity-0 group-hover/th:opacity-100 text-slate-400'}`} /></div>
                   </th>
@@ -250,13 +256,16 @@ export default function Employees() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className="h-10 w-10 rounded-full bg-[#E7F2EC] text-[#0B6E4F] flex items-center justify-center font-bold text-sm uppercase shrink-0">
-                          {e.username.slice(0, 2)}
+                          {(e.full_name || e.username).slice(0, 2)}
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900">{formatName(e.username)}</p>
+                          <p className="font-bold text-slate-900">{e.full_name || formatName(e.username)}</p>
                           <p className="text-[13px] text-slate-500 mt-0.5">{e.username}</p>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 text-slate-600 font-medium">
+                      {e.department || '—'}
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-2 py-1 rounded-md bg-slate-100 text-slate-600 text-xs font-bold font-mono border border-slate-200/50">

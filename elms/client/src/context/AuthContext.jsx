@@ -93,11 +93,17 @@ export function AuthProvider({ children }) {
   }, []);
 
   // Register — same optimisation, use response data directly.
-  const register = useCallback(async (username, password) => {
-    const { data } = await api.post("/auth/register", { username, password });
+  const register = useCallback(async (username, password, full_name, department) => {
+    const { data } = await api.post("/auth/register", { username, password, full_name, department });
     setToken(data.token);
     setTokenState(data.token);
-    const userData = { id: data.id, username: data.username, role: data.role };
+    const userData = { 
+      id: data.id, 
+      username: data.username, 
+      role: data.role,
+      full_name: data.full_name,
+      department: data.department
+    };
     setUser(userData);
     setCachedUser(userData);
     return userData;

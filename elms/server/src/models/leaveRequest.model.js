@@ -4,6 +4,7 @@ const { query } = require("../config/db");
 
 const BASE_SELECT = `
   SELECT l.id, l.employee_id, u.username AS employee_username,
+         u.full_name AS employee_full_name, u.department AS employee_department,
          l.reason, l.start_date, l.end_date,
          l.document_name, (l.document_url IS NOT NULL) AS has_document,
          l.status, l.manager_remarks, l.reviewed_by,

@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const env = require("../config/env");
 const User = require("../models/user.model");
 const Log = require("../models/log.model");
-const { credentialsSchema, parseOrThrow } = require("../utils/validators");
+const { credentialsSchema, registerSchema, parseOrThrow } = require("../utils/validators");
 
 function signToken(user) {
   // Payload carries only the id and role; both are re-read from the signed
@@ -17,7 +17,7 @@ function signToken(user) {
 
 async function register(req, res, next) {
   try {
-    const { username, password } = parseOrThrow(credentialsSchema, req.body);
+    const { username, password, full_name, department } = parseOrThrow(registerSchema, req.body);
 
     const existing = await User.findByUsername(username);
     if (existing) {
@@ -26,13 +26,15 @@ async function register(req, res, next) {
 
     const hash = await bcrypt.hash(password, env.bcryptRounds);
     // Role is NOT read from req.body — createEmployee hardcodes 'employee'.
-    const user = await User.createEmployee(username, hash);
+    const user = await User.createEmployee(username, hash, full_name, department);
 
     return res.status(201).json({
       token: signToken(user),
       id: user.id,
       role: user.role,
       username: user.username,
+      full_name: user.full_name,
+      department: user.department,
     });
   } catch (err) {
     return next(err);

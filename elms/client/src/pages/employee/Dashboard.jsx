@@ -265,6 +265,7 @@ function BreakdownBar({ label, value, total, color }) {
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
+  const [balances, setBalances] = useState([]);
   const [recent, setRecent] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -286,6 +287,13 @@ export default function Dashboard() {
       })
       .catch((err) => setError(errorMessage(err)))
       .finally(() => setLoading(false));
+
+    api
+      .get("/leaves/balances")
+      .then(({ data }) => {
+        setBalances(data.balances || []);
+      })
+      .catch(console.error);
   }, []);
 
   function applyLeaves(leaves) {
@@ -465,7 +473,18 @@ export default function Dashboard() {
 
           {/* Quick Actions */}
           <section className="card p-5">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Quick Actions</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Leave Balances</h2>
+            <div className="flex flex-col gap-3">
+              {balances.length > 0 ? (
+                balances.map(b => (
+                  <BreakdownBar key={b.id} label={b.label} value={b.total - b.used} total={b.total} color={b.color.replace('text-', 'bg-')} />
+                ))
+              ) : (
+                <p className="text-xs text-slate-400">Loading balances...</p>
+              )}
+            </div>
+            
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mt-6 mb-3">Quick Actions</h2>
             <div className="flex flex-col gap-2">
               <Link to="/apply" className="btn-primary w-full text-center focus:ring-2 focus:ring-[#0B6E4F]/40 focus:outline-none">
                 Apply for Leave

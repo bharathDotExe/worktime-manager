@@ -8,7 +8,7 @@ import { errorMessage } from "../api/client";
 export default function Register() {
   const { user, register } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ username: "", password: "", confirm: "" });
+  const [form, setForm] = useState({ username: "", password: "", confirm: "", fullName: "", department: "" });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -24,7 +24,7 @@ export default function Register() {
 
     setBusy(true);
     try {
-      await register(form.username.trim(), form.password);
+      await register(form.username.trim(), form.password, form.fullName.trim(), form.department.trim());
       navigate("/dashboard", { replace: true });
     } catch (err) {
       setError(errorMessage(err, "Unable to register"));
@@ -47,6 +47,28 @@ export default function Register() {
               minLength={3}
               value={form.username}
               onChange={(e) => setForm({ ...form, username: e.target.value })}
+              required
+            />
+          </div>
+          <div>
+            <label className="label" htmlFor="fullName">Full Name</label>
+            <input
+              id="fullName"
+              className="input"
+              minLength={2}
+              value={form.fullName}
+              onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+              required
+            />
+          </div>
+          <div>
+            <label className="label" htmlFor="department">Department</label>
+            <input
+              id="department"
+              className="input"
+              minLength={2}
+              value={form.department}
+              onChange={(e) => setForm({ ...form, department: e.target.value })}
               required
             />
           </div>

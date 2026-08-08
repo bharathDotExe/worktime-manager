@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(100) UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   role VARCHAR(20) NOT NULL DEFAULT 'employee', -- 'employee' | 'manager'
+  full_name VARCHAR(255),
+  department VARCHAR(100),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
