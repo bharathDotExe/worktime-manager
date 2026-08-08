@@ -178,18 +178,17 @@ export default function Settings() {
                 <thead className="bg-slate-50 text-xs uppercase text-slate-500">
                   <tr>
                     <th className="px-6 py-4 font-bold">Employee</th>
-                    <th className="px-6 py-4 font-bold">IP Address</th>
                     <th className="px-6 py-4 font-bold">Login Time</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {loadingLogs ? (
                     <tr>
-                      <td colSpan="3" className="px-6 py-8 text-center text-slate-400">Loading logs...</td>
+                      <td colSpan="2" className="px-6 py-8 text-center text-slate-400">Loading logs...</td>
                     </tr>
                   ) : logs.length === 0 ? (
                     <tr>
-                      <td colSpan="3" className="px-6 py-8 text-center text-slate-400">No recent logins found.</td>
+                      <td colSpan="2" className="px-6 py-8 text-center text-slate-400">No recent logins found.</td>
                     </tr>
                   ) : (
                     logs.map((log) => (
@@ -209,7 +208,6 @@ export default function Settings() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 font-mono text-xs">{log.ip_address || "-"}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <Clock className="h-4 w-4 text-slate-400" />
