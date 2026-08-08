@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const env = require("../config/env");
 const User = require("../models/user.model");
+const Log = require("../models/log.model");
 const { credentialsSchema, parseOrThrow } = require("../utils/validators");
 
 function signToken(user) {
@@ -50,6 +51,16 @@ async function login(req, res, next) {
 
     if (!user || !ok) {
       return res.status(401).json({ error: "Invalid username or password" });
+    }
+
+    // Log the successful login attempt
+    try {
+      const ipAddress = req.ip || req.connection.remoteAddress;
+      const userAgent = req.headers["user-agent"];
+      await Log.recordLogin(user.id, ipAddress, userAgent);
+    } catch (logErr) {
+      console.error("Failed to record login log:", logErr);
+      // We don't fail the login if logging fails.
     }
 
     return res.json({

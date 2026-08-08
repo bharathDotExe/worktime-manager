@@ -44,3 +44,13 @@ CREATE INDEX IF NOT EXISTS idx_leave_status ON leave_requests(status);
 -- Only one manager account may ever exist (seed.js owns it).
 CREATE UNIQUE INDEX IF NOT EXISTS uniq_single_manager
   ON users ((role)) WHERE role = 'manager';
+
+CREATE TABLE IF NOT EXISTS login_logs (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  ip_address VARCHAR(45),
+  user_agent TEXT,
+  login_time TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_login_logs_user_id ON login_logs(user_id);

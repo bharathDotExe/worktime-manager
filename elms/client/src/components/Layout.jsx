@@ -338,7 +338,7 @@ export default function Layout({ children, links = [] }) {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-[13px] text-elms-ink font-medium leading-tight mb-1">
-                                {isManager ? `Pending request for ${notif.reason}` : `Your leave for ${notif.reason} was ${notif.status}`}
+                                {isManager ? `Pending request from ${notif.employee_username.split('@')[0]} for ${notif.reason}` : `Your leave for ${notif.reason} was ${notif.status}`}
                               </p>
                               <p className="text-[11px] text-slate-400">
                                 {new Date(notif.created_at || notif.startDate || Date.now()).toLocaleDateString()}
