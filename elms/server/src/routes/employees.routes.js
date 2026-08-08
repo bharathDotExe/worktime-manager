@@ -8,5 +8,6 @@ const controller = require("../controllers/employees.controller");
 const router = express.Router();
 
 router.get("/", authenticate, requireRole("manager"), controller.list);
+router.get("/logs", authenticate, requireRole("manager"), controller.listLogs);
 
 module.exports = router;

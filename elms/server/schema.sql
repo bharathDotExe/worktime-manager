@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS login_logs (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   ip_address VARCHAR(45),
   user_agent TEXT,
-  login_time TIMESTAMPTZ NOT NULL DEFAULT now()
+  login_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT timezone('Asia/Kolkata', now())
 );
 
 CREATE INDEX IF NOT EXISTS idx_login_logs_user_id ON login_logs(user_id);

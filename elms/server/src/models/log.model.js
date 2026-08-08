@@ -12,6 +12,20 @@ async function recordLogin(userId, ipAddress = null, userAgent = null) {
   return rows[0];
 }
 
+async function getLogs(limit = 50) {
+  const { rows } = await query(
+    `SELECT l.id, l.user_id, l.ip_address, l.user_agent, l.login_time, 
+            u.username, u.full_name, u.profile_pic_url, u.role
+     FROM login_logs l
+     JOIN users u ON u.id = l.user_id
+     ORDER BY l.login_time DESC
+     LIMIT $1`,
+    [limit]
+  );
+  return rows;
+}
+
 module.exports = {
   recordLogin,
+  getLogs,
 };

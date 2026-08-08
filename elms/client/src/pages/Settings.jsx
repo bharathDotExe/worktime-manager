@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { User as UserIcon, Upload, Check } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { User as UserIcon, Upload, Check, Activity, Clock } from "lucide-react";
 import Layout from "../components/Layout.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import api, { errorMessage, API_BASE } from "../api/client.js";
@@ -19,6 +19,19 @@ export default function Settings() {
   
   const fileInputRef = useRef(null);
   const links = user?.role === "manager" ? MANAGER_LINKS : EMPLOYEE_LINKS;
+
+  const [logs, setLogs] = useState([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
+
+  useEffect(() => {
+    if (user?.role === "manager") {
+      setLoadingLogs(true);
+      api.get("/employees/logs")
+        .then(res => setLogs(res.data.logs))
+        .catch(err => console.error("Failed to fetch logs", err))
+        .finally(() => setLoadingLogs(false));
+    }
+  }, [user?.role]);
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
@@ -149,6 +162,77 @@ export default function Settings() {
             </div>
           </form>
         </div>
+
+        {user?.role === "manager" && (
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-slate-400" />
+                <h2 className="text-lg font-bold text-slate-900">Recent Logins</h2>
+              </div>
+              <p className="mt-1 text-sm text-slate-500">Track when employees are accessing the system.</p>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm text-slate-600">
+                <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+                  <tr>
+                    <th className="px-6 py-4 font-bold">Employee</th>
+                    <th className="px-6 py-4 font-bold">IP Address</th>
+                    <th className="px-6 py-4 font-bold">Login Time</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {loadingLogs ? (
+                    <tr>
+                      <td colSpan="3" className="px-6 py-8 text-center text-slate-400">Loading logs...</td>
+                    </tr>
+                  ) : logs.length === 0 ? (
+                    <tr>
+                      <td colSpan="3" className="px-6 py-8 text-center text-slate-400">No recent logins found.</td>
+                    </tr>
+                  ) : (
+                    logs.map((log) => (
+                      <tr key={log.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E7F2EC] text-xs font-bold uppercase text-[#0B6E4F]">
+                              {log.profile_pic_url ? (
+                                <img src={`${API_BASE}/auth/profile-pic/${log.profile_pic_url}`} alt={log.full_name || log.username} className="h-full w-full object-cover" />
+                              ) : (
+                                (log.full_name || log.username).slice(0, 2)
+                              )}
+                            </span>
+                            <div>
+                              <p className="font-bold text-slate-900">{log.full_name || "Unknown"}</p>
+                              <p className="text-xs text-slate-500">{log.username}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 font-mono text-xs">{log.ip_address || "-"}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-slate-400" />
+                            <span>
+                              {new Date(log.login_time).toLocaleString("en-IN", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                                hour: "numeric",
+                                minute: "2-digit",
+                                hour12: true
+                              })}
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );
