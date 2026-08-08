@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { User as UserIcon, Upload, Check } from "lucide-react";
 import Layout from "../components/Layout.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import { errorMessage } from "../api/client";
+import api, { errorMessage, API_BASE } from "../api/client.js";
 import { EMPLOYEE_LINKS, MANAGER_LINKS } from "../nav";
 
 export default function Settings() {
@@ -10,7 +10,7 @@ export default function Settings() {
   const [fullName, setFullName] = useState(user?.full_name || "");
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(
-    user?.profile_pic_url ? `/api/auth/profile-pic/${user.profile_pic_url}` : null
+    user?.profile_pic_url ? `${API_BASE}/auth/profile-pic/${user.profile_pic_url}` : null
   );
   
   const [busy, setBusy] = useState(false);

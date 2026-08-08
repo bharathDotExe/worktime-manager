@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Layout from "../../components/Layout.jsx";
 import StatusBadge from "../../components/StatusBadge.jsx";
-import api, { errorMessage } from "../../api/client";
+import api, { API_BASE, errorMessage } from "../../api/client";
 import { MANAGER_LINKS } from "../../nav";
 import { openDocument, fetchDocumentUrl } from "../../api/documents";
 import { useToast } from "../../components/Toast.jsx";
@@ -804,7 +804,7 @@ export default function LeaveRequests() {
                       <div className="flex items-center gap-3">
                         <Avatar 
                           name={l.employee_full_name || l.employee_username} 
-                          avatarUrl={l.employee_profile_pic_url ? `/api/auth/profile-pic/${l.employee_profile_pic_url}` : null}
+                          avatarUrl={l.employee_profile_pic_url ? `${API_BASE}/auth/profile-pic/${l.employee_profile_pic_url}` : null}
                         />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
@@ -873,7 +873,7 @@ export default function LeaveRequests() {
                           <div className="flex items-center gap-3">
                             <Avatar 
                               name={l.employee_full_name || l.employee_username} 
-                              avatarUrl={l.employee_profile_pic_url ? `/api/auth/profile-pic/${l.employee_profile_pic_url}` : null}
+                              avatarUrl={l.employee_profile_pic_url ? `${API_BASE}/auth/profile-pic/${l.employee_profile_pic_url}` : null}
                             />
                             <div className="min-w-0 max-w-[160px]">
                               <p className="truncate text-[14px] font-bold text-elms-ink" title={l.employee_full_name || l.employee_username}>

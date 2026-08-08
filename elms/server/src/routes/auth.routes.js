@@ -29,6 +29,6 @@ router.post("/register", registerLimiter, controller.register);
 router.post("/login", loginLimiter, controller.login);
 router.get("/me", authenticate, controller.me);
 router.patch("/profile", authenticate, uploadImage.single("profile_pic"), controller.updateProfile);
-router.get("/profile-pic/:filename", authenticate, controller.getProfilePic);
+router.get("/profile-pic/:filename", controller.getProfilePic);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { Users, Search, MoreVertical, Eye, Calendar, ArrowUpDown } from "lucide-react";
 import Layout from "../../components/Layout.jsx";
-import api, { errorMessage } from "../../api/client";
+import api, { errorMessage, API_BASE } from "../../api/client";
 import { MANAGER_LINKS } from "../../nav";
 import { cacheGet, cacheSet } from "../../api/cache";
 
@@ -197,7 +197,7 @@ export default function Employees() {
               <div className="flex min-w-0 items-center gap-4">
                 <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E7F2EC] text-sm font-bold uppercase text-[#0B6E4F]">
                   {e.profile_pic_url ? (
-                    <img src={`/api/auth/profile-pic/${e.profile_pic_url}`} alt={e.full_name || e.username} className="h-full w-full object-cover" />
+                    <img src={`${API_BASE}/auth/profile-pic/${e.profile_pic_url}`} alt={e.full_name || e.username} className="h-full w-full object-cover" />
                   ) : (
                     (e.full_name || e.username).slice(0, 2)
                   )}
@@ -261,7 +261,7 @@ export default function Employees() {
                       <div className="flex items-center gap-4">
                         <div className="h-10 w-10 overflow-hidden rounded-full bg-[#E7F2EC] text-[#0B6E4F] flex items-center justify-center font-bold text-sm uppercase shrink-0">
                           {e.profile_pic_url ? (
-                            <img src={`/api/auth/profile-pic/${e.profile_pic_url}`} alt={e.full_name || e.username} className="h-full w-full object-cover" />
+                            <img src={`${API_BASE}/auth/profile-pic/${e.profile_pic_url}`} alt={e.full_name || e.username} className="h-full w-full object-cover" />
                           ) : (
                             (e.full_name || e.username).slice(0, 2)
                           )}

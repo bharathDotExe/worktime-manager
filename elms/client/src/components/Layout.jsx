@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
-import api from "../api/client.js";
+import api, { API_BASE } from "../api/client.js";
 import { cacheGet, cacheSet } from "../api/cache";
 
 function Icon({ name, className = "h-5 w-5" }) {
@@ -275,7 +275,7 @@ export default function Layout({ children, links = [] }) {
                 className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-[#E7F2EC] text-sm font-bold uppercase text-elms-primary"
               >
                 {user?.profile_pic_url ? (
-                  <img src={`/api/auth/profile-pic/${user.profile_pic_url}`} alt="Profile" className="h-full w-full object-cover" />
+                  <img src={`${API_BASE}/auth/profile-pic/${user.profile_pic_url}`} alt="Profile" className="h-full w-full object-cover" />
                 ) : (
                   user?.username?.slice(0, 2) || "U"
                 )}
@@ -380,7 +380,7 @@ export default function Layout({ children, links = [] }) {
               >
                 <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-[#E7F2EC] text-sm font-bold uppercase text-elms-primary">
                   {user?.profile_pic_url ? (
-                    <img src={`/api/auth/profile-pic/${user.profile_pic_url}`} alt="Profile" className="h-full w-full object-cover" />
+                    <img src={`${API_BASE}/auth/profile-pic/${user.profile_pic_url}`} alt="Profile" className="h-full w-full object-cover" />
                   ) : (
                     user?.username?.slice(0, 2) || "U"
                   )}
