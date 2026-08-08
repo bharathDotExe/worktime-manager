@@ -195,8 +195,12 @@ export default function Employees() {
           {filteredAndSortedEmployees.map((e) => (
             <article key={e.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm relative group overflow-hidden">
               <div className="flex min-w-0 items-center gap-4">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#E7F2EC] text-sm font-bold uppercase text-[#0B6E4F]">
-                  {(e.full_name || e.username).slice(0, 2)}
+                <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E7F2EC] text-sm font-bold uppercase text-[#0B6E4F]">
+                  {e.profile_pic_url ? (
+                    <img src={`/api/auth/profile-pic/${e.profile_pic_url}`} alt={e.full_name || e.username} className="h-full w-full object-cover" />
+                  ) : (
+                    (e.full_name || e.username).slice(0, 2)
+                  )}
                 </span>
                 <div className="min-w-0">
                   <p className="truncate font-bold text-slate-900">{e.full_name || formatName(e.username)}</p>
@@ -255,8 +259,12 @@ export default function Employees() {
                   <tr key={e.id} className="hover:bg-slate-50/70 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-full bg-[#E7F2EC] text-[#0B6E4F] flex items-center justify-center font-bold text-sm uppercase shrink-0">
-                          {(e.full_name || e.username).slice(0, 2)}
+                        <div className="h-10 w-10 overflow-hidden rounded-full bg-[#E7F2EC] text-[#0B6E4F] flex items-center justify-center font-bold text-sm uppercase shrink-0">
+                          {e.profile_pic_url ? (
+                            <img src={`/api/auth/profile-pic/${e.profile_pic_url}`} alt={e.full_name || e.username} className="h-full w-full object-cover" />
+                          ) : (
+                            (e.full_name || e.username).slice(0, 2)
+                          )}
                         </div>
                         <div>
                           <p className="font-bold text-slate-900">{e.full_name || formatName(e.username)}</p>

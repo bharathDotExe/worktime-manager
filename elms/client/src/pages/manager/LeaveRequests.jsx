@@ -802,7 +802,10 @@ export default function LeaveRequests() {
                       aria-label={`Review leave request from ${l.employee_username}`}
                     >
                       <div className="flex items-center gap-3">
-                        <Avatar name={l.employee_full_name || l.employee_username} />
+                        <Avatar 
+                          name={l.employee_full_name || l.employee_username} 
+                          avatarUrl={l.employee_profile_pic_url ? `/api/auth/profile-pic/${l.employee_profile_pic_url}` : null}
+                        />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
                             <p className="truncate text-[13px] font-bold text-elms-ink">{l.employee_full_name || l.employee_username}</p>
@@ -868,7 +871,10 @@ export default function LeaveRequests() {
                         {/* Employee */}
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <Avatar name={l.employee_full_name || l.employee_username} />
+                            <Avatar 
+                              name={l.employee_full_name || l.employee_username} 
+                              avatarUrl={l.employee_profile_pic_url ? `/api/auth/profile-pic/${l.employee_profile_pic_url}` : null}
+                            />
                             <div className="min-w-0 max-w-[160px]">
                               <p className="truncate text-[14px] font-bold text-elms-ink" title={l.employee_full_name || l.employee_username}>
                                 {l.employee_full_name || l.employee_username}

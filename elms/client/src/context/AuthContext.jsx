@@ -85,8 +85,15 @@ export function AuthProvider({ children }) {
     const { data } = await api.post("/auth/login", { username, password });
     setToken(data.token);
     setTokenState(data.token);
-    // The server already returns { token, role, username } — use it directly.
-    const userData = { id: data.id, username: data.username, role: data.role };
+    // The server returns all profile fields — use them directly.
+    const userData = { 
+      id: data.id, 
+      username: data.username, 
+      role: data.role,
+      full_name: data.full_name,
+      department: data.department,
+      profile_pic_url: data.profile_pic_url,
+    };
     setUser(userData);
     setCachedUser(userData);
     return userData;
@@ -109,9 +116,18 @@ export function AuthProvider({ children }) {
     return userData;
   }, []);
 
+  const updateProfile = useCallback(async (formData) => {
+    const { data } = await api.patch("/auth/profile", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    setUser(data);
+    setCachedUser(data);
+    return data;
+  }, []);
+
   const value = useMemo(
-    () => ({ user, token, loading, login, register, logout }),
-    [user, token, loading, login, register, logout],
+    () => ({ user, token, loading, login, register, logout, updateProfile }),
+    [user, token, loading, login, register, logout, updateProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

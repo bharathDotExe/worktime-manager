@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   role VARCHAR(20) NOT NULL DEFAULT 'employee', -- 'employee' | 'manager'
   full_name VARCHAR(255),
   department VARCHAR(100),
+  profile_pic_url VARCHAR(255),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

@@ -29,4 +29,24 @@ const upload = multer({
   limits: { fileSize: env.maxUploadMb * 1024 * 1024, files: 1 },
 });
 
-module.exports = { upload, ALLOWED_MIME: ALLOWED, extForMime: (mime) => ALLOWED.get(mime) || "" };
+const IMAGE_ONLY = new Map([
+  ["image/png", ".png"],
+  ["image/jpeg", ".jpg"],
+]);
+
+function imageFilter(req, file, cb) {
+  if (!IMAGE_ONLY.has(file.mimetype)) {
+    const err = new Error("Only PNG and JPEG images are allowed for profile pictures");
+    err.status = 400;
+    return cb(err);
+  }
+  return cb(null, true);
+}
+
+const uploadImage = multer({
+  storage,
+  fileFilter: imageFilter,
+  limits: { fileSize: 5 * 1024 * 1024, files: 1 }, // 5MB max for profile pics
+});
+
+module.exports = { upload, uploadImage, ALLOWED_MIME: ALLOWED, extForMime: (mime) => ALLOWED.get(mime) || IMAGE_ONLY.get(mime) || "" };

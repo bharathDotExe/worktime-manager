@@ -8,6 +8,7 @@ import ApplyLeave from "./pages/employee/ApplyLeave.jsx";
 import LeaveHistory from "./pages/employee/LeaveHistory.jsx";
 import Employees from "./pages/manager/Employees.jsx";
 import LeaveRequests from "./pages/manager/LeaveRequests.jsx";
+import Settings from "./pages/Settings.jsx";
 
 export default function App() {
   return (
@@ -35,6 +36,11 @@ export default function App() {
       <Route
         path="/manager/employees"
         element={<ProtectedRoute role="manager"><Employees /></ProtectedRoute>}
+      />
+
+      <Route
+        path="/settings"
+        element={<ProtectedRoute><Settings /></ProtectedRoute>}
       />
 
       <Route path="/" element={<Landing />} />

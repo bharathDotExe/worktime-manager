@@ -23,8 +23,12 @@ const registerLimiter = rateLimit({
   message: { error: "Too many accounts created from this IP. Try again later." },
 });
 
+const { upload, uploadImage } = require("../middleware/upload");
+
 router.post("/register", registerLimiter, controller.register);
 router.post("/login", loginLimiter, controller.login);
 router.get("/me", authenticate, controller.me);
+router.patch("/profile", authenticate, uploadImage.single("profile_pic"), controller.updateProfile);
+router.get("/profile-pic/:filename", authenticate, controller.getProfilePic);
 
 module.exports = router;

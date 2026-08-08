@@ -30,6 +30,7 @@ function Icon({ name, className = "h-5 w-5" }) {
     apply: "M12 5v14M5 12h14",
     history: "M12 8v5l3 2M3 12a9 9 0 1 0 9-9 9 9 0 0 0-7.9 4.7M3 4v4h4",
     requests: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",
+    settings: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z",
   };
   return (
     <svg
@@ -271,9 +272,13 @@ export default function Layout({ children, links = [] }) {
             <div className="relative" ref={mobileProfileRef}>
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="grid h-9 w-9 place-items-center rounded-full bg-[#E7F2EC] text-sm font-bold uppercase text-elms-primary"
+                className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-[#E7F2EC] text-sm font-bold uppercase text-elms-primary"
               >
-                {user?.username?.slice(0, 2) || "U"}
+                {user?.profile_pic_url ? (
+                  <img src={`/api/auth/profile-pic/${user.profile_pic_url}`} alt="Profile" className="h-full w-full object-cover" />
+                ) : (
+                  user?.username?.slice(0, 2) || "U"
+                )}
               </button>
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 w-40 rounded-xl border border-slate-200 bg-white py-1 shadow-lg z-50">
@@ -373,11 +378,15 @@ export default function Layout({ children, links = [] }) {
                 className="flex items-center gap-3 border-l border-slate-200 pl-6 cursor-pointer"
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
               >
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-[#E7F2EC] text-sm font-bold uppercase text-elms-primary">
-                  {user?.username?.slice(0, 2) || "U"}
+                <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-[#E7F2EC] text-sm font-bold uppercase text-elms-primary">
+                  {user?.profile_pic_url ? (
+                    <img src={`/api/auth/profile-pic/${user.profile_pic_url}`} alt="Profile" className="h-full w-full object-cover" />
+                  ) : (
+                    user?.username?.slice(0, 2) || "U"
+                  )}
                 </span>
                 <div className="hidden text-left sm:block">
-                  <p className="text-[14px] font-bold leading-tight text-elms-ink">{user?.username || "User"}</p>
+                  <p className="text-[14px] font-bold leading-tight text-elms-ink">{user?.full_name || user?.username || "User"}</p>
                   <p className="text-[12px] font-medium text-slate-400 capitalize">{user?.role || "Employee"}</p>
                 </div>
                 <svg className="h-4 w-4 text-slate-400 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
