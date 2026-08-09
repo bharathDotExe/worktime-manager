@@ -1,5 +1,6 @@
 -- Employee Leave Management System — schema
--- Safe to run repeatedly.
+-- Version: 1.0.1  |  Last updated: 2026-08-09
+-- Safe to run repeatedly (all statements use IF NOT EXISTS / DO blocks).
 
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
@@ -12,7 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Defense in depth: the DB itself refuses unknown roles.
+-- Defense in depth: the DB itself enforces valid roles,
+-- so even direct DB access cannot insert an unknown role.
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -44,7 +46,8 @@ CREATE TABLE IF NOT EXISTS leave_requests (
 CREATE INDEX IF NOT EXISTS idx_leave_employee ON leave_requests(employee_id);
 CREATE INDEX IF NOT EXISTS idx_leave_status ON leave_requests(status);
 
--- Only one manager account may ever exist (seed.js owns it).
+-- Only one manager account may ever exist.
+-- Manager creation is handled exclusively by seed.js (never via the API).
 CREATE UNIQUE INDEX IF NOT EXISTS uniq_single_manager
   ON users ((role)) WHERE role = 'manager';
 
